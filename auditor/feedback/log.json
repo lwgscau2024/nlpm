@@ -242,7 +242,7 @@
     "BUG-missing-frontmatter": {
       "total_hits": 286,
       "led_to_merged_pr": 27,
-      "led_to_rejected_pr": 6,
+      "led_to_rejected_pr": 15,
       "self_false_positive": 3,
       "maintainer_rejected": 5,
       "downstream_suppressions": 0,
@@ -3011,7 +3011,7 @@
     "SEC-network-fetch-external-code": {
       "total_hits": 1,
       "led_to_merged_pr": 0,
-      "led_to_rejected_pr": 0,
+      "led_to_rejected_pr": 1,
       "self_false_positive": 0,
       "maintainer_rejected": 0,
       "downstream_suppressions": 0,
@@ -3024,7 +3024,7 @@
     "SEC-network-deploy-public": {
       "total_hits": 1,
       "led_to_merged_pr": 0,
-      "led_to_rejected_pr": 0,
+      "led_to_rejected_pr": 1,
       "self_false_positive": 0,
       "maintainer_rejected": 0,
       "downstream_suppressions": 0,
@@ -3050,7 +3050,7 @@
     "SEC-path-delimiter-injection": {
       "total_hits": 1,
       "led_to_merged_pr": 0,
-      "led_to_rejected_pr": 0,
+      "led_to_rejected_pr": 1,
       "self_false_positive": 0,
       "maintainer_rejected": 0,
       "downstream_suppressions": 0,
@@ -5603,8 +5603,8 @@
     "total_audits": 10,
     "total_prs_submitted": 322,
     "total_prs_merged": 119,
-    "total_prs_rejected": 64,
+    "total_prs_rejected": 67,
     "total_prs_applied_separately": 27,
-    "updated_at": "2026-08-12T22:14:29.681621Z"
+    "updated_at": "2026-08-13T22:14:18.407282Z"
   }
 }

@@ -7079,13 +7079,13 @@
       "prs": [
         {
           "number": 43,
-          "state": "OPEN",
+          "state": "CLOSED",
           "mergedAt": null,
-          "closedAt": null,
+          "closedAt": "2026-08-13T16:52:36Z",
           "title": "fix: add missing name field to all command frontmatter blocks",
-          "updatedAt": "2026-04-26T06:50:27Z",
+          "updatedAt": "2026-08-13T16:52:36Z",
           "createdAt": "2026-04-26T06:44:42Z",
-          "outcome": "open",
+          "outcome": "rejected",
           "fingerprints": [
             "sha256:4af23bf072e36b2979143f3e52669e8e78542485954947a0c2d50dad17f59e6c",
             "sha256:2daf056c710efb21e6486e0048e363a2e85b616e1f8a57ad388d5fa548b954b2",
@@ -7108,13 +7108,13 @@
         },
         {
           "number": 47,
-          "state": "OPEN",
+          "state": "CLOSED",
           "mergedAt": null,
-          "closedAt": null,
+          "closedAt": "2026-08-13T16:52:45Z",
           "title": "fix: rewrite share.md as a proper command template with YAML frontmatter",
-          "updatedAt": "2026-04-26T06:52:01Z",
+          "updatedAt": "2026-08-13T16:52:45Z",
           "createdAt": "2026-04-26T06:52:01Z",
-          "outcome": "open",
+          "outcome": "rejected",
           "fingerprints": [
             "sha256:6ffb6e306b52951802022a728d81dae5243bdd0b99934272c73601a8fbee95cd",
             "sha256:7050f13294bf0989b308e8350a9fb2426ba1e0b94818a320166e00827d7fa997"
@@ -7127,13 +7127,13 @@
         },
         {
           "number": 45,
-          "state": "OPEN",
+          "state": "CLOSED",
           "mergedAt": null,
-          "closedAt": null,
+          "closedAt": "2026-08-13T16:52:41Z",
           "title": "fix: harden install-pi.sh and share.sh against supply-chain and data-exposure risks",
-          "updatedAt": "2026-04-26T06:52:47Z",
+          "updatedAt": "2026-08-13T16:52:41Z",
           "createdAt": "2026-04-26T06:46:35Z",
-          "outcome": "open",
+          "outcome": "rejected",
           "fingerprints": [
             "sha256:92b81b560bcdefebd5c7c00180ee5cfb34843731ce5033d6fddd8fc7b9979885",
             "sha256:6359292c71ed77518913d6a07aabe986e1400417c3c23baf0ec4dc10835175be",
@@ -7151,7 +7151,7 @@
       "score": 66,
       "security": "CLEAR",
       "stars": 7692,
-      "status": "contributed",
+      "status": "tracked",
       "strategy": "single"
     },
     "numman-ali/n-skills": {

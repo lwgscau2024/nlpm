@@ -9820,6 +9820,19 @@
       "commit_sha_at_audit": "7d1516291f24a48696a1db7f86ecb15c75249754",
       "exemplar_published": true,
       "exemplar_path": "auditor/exemplars/elementalsouls-Claude-OSINT.md"
+    },
+    "deepseek-ai/deepseek-harness": {
+      "artifacts": 28,
+      "commit_sha_at_audit": "47f943859bef60e4160492346772ded9b24f765a",
+      "description": "DeepSeek Harness: Everything is a Plugin.",
+      "discovered": "2026-08-14T00:00:00Z",
+      "discovery_strategy": "manual-request",
+      "prs": [],
+      "score": 97,
+      "security": "CLEAR",
+      "stars": 60382,
+      "status": "audited",
+      "strategy": "batched"
     }
   }
 }

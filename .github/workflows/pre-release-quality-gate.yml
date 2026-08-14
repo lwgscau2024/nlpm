@@ -153,8 +153,15 @@ jobs:
         # version-bump-only PR would be judged on 40+ untouched files. The
         # deterministic floor + vocab gate above stay whole-repo. A manual
         # workflow_dispatch scores everything (deliberate full sweep).
+        # The Codex layout is part of the pattern because those files ship to
+        # Codex users and are byte-identical mirrors of skills/nlpm/*. Omitting
+        # them made every codex/ artifact unscorable on every PR: v1.2.5 was cut
+        # with the two copies of the R01 carve-out list out of sync (four
+        # carve-outs on the Claude side, three on the Codex side) and no gate
+        # could see it. tests/test_gate_pattern_coverage.py now fails when a
+        # shipped NL artifact falls outside this pattern.
         run: |
-          NL_PATTERN='^(commands/[^/]+\.md|commands/shared/[^/]+\.md|agents/[^/]+\.md|skills/nlpm/[^/]+/SKILL\.md|AGENTS\.md|CLAUDE\.md|GEMINI\.md)$'
+          NL_PATTERN='^(commands/[^/]+\.md|commands/shared/[^/]+\.md|agents/[^/]+\.md|skills/nlpm/[^/]+/SKILL\.md|codex/skills/[^/]+/SKILL\.md|codex/AGENTS\.md|AGENTS\.md|CLAUDE\.md|GEMINI\.md)$'
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             git ls-files | grep -E "$NL_PATTERN" > /tmp/artifacts_to_score.txt || true
           else

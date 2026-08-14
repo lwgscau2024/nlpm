@@ -135,6 +135,9 @@ The R01 rule penalizes unbounded quantifiers without measurable criteria. The pe
 - `relevant` in a markdown header (e.g., `## Relevant X`).
 - `relevant to <named-scope>` constructions (semantic "pertinent to").
 - Any term followed by a measurable criterion clause (e.g., "appropriate to the SLO target of 99.9% uptime").
+- Any term whose selection criteria the same artifact states ahead of the use — a table, list, or numbered procedure that binds each case to a named command, file, or value. The criterion does not have to sit in the same sentence; a later "run the `relevant` checks" pointing back to such a table is a reference, not a gap. Penalize when no such definition exists anywhere above the use, or when the definition is itself built from flagged terms.
+
+> Real-world example: `deepseek-ai/deepseek-harness` (audited 2026-08-14, score 97) — `.agents/skills/dsh-pre-push-checks/SKILL.md` scored 82 on nine occurrences of `relevant`, seven of them pointing back to its own `## Select relevant evidence` table, which binds each changed surface to a named command (documentation to `pnpm run doc-sync`, model-visible output to the owning keyless snapshot). The two that name no enumerated set — "the `relevant` `pnpm run test:e2e` target" and "when unit coverage is `relevant`" — are the genuine findings. Without this carve-out R01 penalizes the authors who define a selection rule and then refer to it by name, which is the structure that makes such a skill usable.
 
 See `nlpm:scoring` for the full vague-quantifier penalty table and cap (-2 each, -20 cap).
 

@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-13T22:44:19Z",
+  "generated_at": "2026-08-14T22:38:16Z",
   "since": null,
   "summary": {
-    "total_repos": 288,
-    "total_findings": 5328,
-    "high_findings": 1808,
+    "total_repos": 289,
+    "total_findings": 5338,
+    "high_findings": 1811,
     "total_advisories": 22,
     "high_advisories": 3,
     "repos_with_drift": 3,
@@ -1836,6 +1836,18 @@
       "vocab_drift_high": 0
     },
     {
+      "repo": "deepseek-ai/deepseek-harness",
+      "status": "audited",
+      "stars": 60382,
+      "score": 97,
+      "security": "CLEAR",
+      "total_findings": 10,
+      "high_findings": 3,
+      "medium_findings": 0,
+      "vocab_drift_count": 0,
+      "vocab_drift_high": 0
+    },
+    {
       "repo": "eze-is/web-access",
       "status": "audited",
       "stars": 7686,
@@ -3471,8 +3483,8 @@
   "rule_distribution": [
     {
       "rule_id": "R01",
-      "total": 602,
-      "repos_affected": 71
+      "total": 611,
+      "repos_affected": 72
     },
     {
       "rule_id": "R09",
@@ -3556,8 +3568,8 @@
     },
     {
       "rule_id": "R04",
-      "total": 86,
-      "repos_affected": 20
+      "total": 87,
+      "repos_affected": 21
     },
     {
       "rule_id": "CC-terminology-drift",
@@ -5476,6 +5488,16 @@
       "counts": {
         "status_check": 6,
         "finding_outcome": 3,
+        "report_generated": 1,
+        "dashboard_rendered": 1
+      }
+    },
+    {
+      "day": "2026-08-14",
+      "counts": {
+        "status_check": 6,
+        "findings_aggregated": 1,
+        "audit_complete": 1,
         "report_generated": 1
       }
     }

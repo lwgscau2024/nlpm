@@ -3880,3 +3880,4 @@
 {"timestamp":"2026-08-14T16:29:53Z","workflow":"track","event":"status_check","run_id":"31818730946","run_number":710,"data":{"contributed":55,"tracked":39,"case_study_ready":43,"rule_adopted":2}}
 {"timestamp":"2026-08-14T20:20:19Z","workflow":"track","event":"status_check","run_id":"31836734637","run_number":711,"data":{"contributed":55,"tracked":39,"case_study_ready":43,"rule_adopted":2}}
 {"timestamp":"2026-08-14T22:03:56Z","workflow":"daily-report","event":"report_generated","run_id":"31845094206","run_number":133,"data":{"total_repos":289}}
+{"timestamp":"2026-08-14T22:38:16Z","workflow":"dashboard","event":"dashboard_rendered","run_id":"31847370338","run_number":89,"data":{"repos":289,"findings":5338,"advisories":22}}

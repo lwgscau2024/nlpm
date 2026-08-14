@@ -19,7 +19,7 @@
       "state": "healthy"
     },
     "R01": {
-      "total_hits": 602,
+      "total_hits": 611,
       "repos": [
         "slavingia/skills",
         "deanpeters/Product-Manager-Skills",
@@ -27,7 +27,7 @@
       ],
       "led_to_merged_pr": 1,
       "led_to_rejected_pr": 0,
-      "self_false_positive": 4,
+      "self_false_positive": 11,
       "maintainer_rejected": 0,
       "downstream_suppressions": 0,
       "verified_fixed": 23,
@@ -1319,7 +1319,7 @@
       "state": "healthy"
     },
     "R04": {
-      "total_hits": 86,
+      "total_hits": 87,
       "led_to_merged_pr": 0,
       "led_to_rejected_pr": 0,
       "self_false_positive": 0,
@@ -5605,6 +5605,6 @@
     "total_prs_merged": 119,
     "total_prs_rejected": 67,
     "total_prs_applied_separately": 27,
-    "updated_at": "2026-08-13T22:14:18.407282Z"
+    "updated_at": "2026-08-14T22:03:55.988292Z"
   }
 }

@@ -20,13 +20,13 @@
       "prs": [
         {
           "number": 49,
-          "state": "OPEN",
-          "mergedAt": null,
-          "closedAt": null,
+          "state": "MERGED",
+          "mergedAt": "2026-08-15T15:51:35Z",
+          "closedAt": "2026-08-15T15:51:35Z",
           "title": "fix: replace invalid agent color enum values with valid ones",
-          "updatedAt": "2026-07-06T15:29:17Z",
+          "updatedAt": "2026-08-15T15:51:35Z",
           "createdAt": "2026-07-06T15:29:17Z",
-          "outcome": "open",
+          "outcome": "merged",
           "fingerprints": [
             "sha256:fbc0c17bd049dc79a6dec9cb6a14450d3ffe1b8a3255784b731f5a2f8a537553",
             "sha256:ee177e74c967845c515236734d9204ac84a2497335c6a1dbb68311d5737fe554",
@@ -59,13 +59,13 @@
         },
         {
           "number": 50,
-          "state": "OPEN",
-          "mergedAt": null,
-          "closedAt": null,
+          "state": "MERGED",
+          "mergedAt": "2026-08-15T15:51:25Z",
+          "closedAt": "2026-08-15T15:51:26Z",
           "title": "fix: remove exploration-orthogonal from Aristotle's declared profiles",
-          "updatedAt": "2026-07-06T15:29:59Z",
+          "updatedAt": "2026-08-15T15:51:26Z",
           "createdAt": "2026-07-06T15:29:59Z",
-          "outcome": "open",
+          "outcome": "merged",
           "fingerprints": [
             "sha256:0543c663f08e49ac9d06c391af122ef7def42d0f23d803a2b9e736db95b77e96"
           ],
@@ -76,13 +76,13 @@
         },
         {
           "number": 51,
-          "state": "OPEN",
-          "mergedAt": null,
-          "closedAt": null,
+          "state": "MERGED",
+          "mergedAt": "2026-08-15T15:51:30Z",
+          "closedAt": "2026-08-15T15:51:30Z",
           "title": "fix: add sutskever to Machiavelli's polarity_pairs",
-          "updatedAt": "2026-07-06T15:30:38Z",
+          "updatedAt": "2026-08-15T15:51:31Z",
           "createdAt": "2026-07-06T15:30:38Z",
-          "outcome": "open",
+          "outcome": "merged",
           "fingerprints": [
             "sha256:5392ac4a4198a2cab522ca99be364a93d1bb864de4f14855e5a70b8e318c2c46"
           ],

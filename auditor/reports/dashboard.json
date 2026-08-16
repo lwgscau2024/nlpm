@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-15T22:37:00Z",
+  "generated_at": "2026-08-16T22:36:37Z",
   "since": null,
   "summary": {
     "total_repos": 289,
@@ -5511,6 +5511,16 @@
         "finding_introduced": 41,
         "no_narrative": 1,
         "finding_outcome": 3,
+        "report_generated": 1,
+        "dashboard_rendered": 1
+      }
+    },
+    {
+      "day": "2026-08-16",
+      "counts": {
+        "scan_complete": 1,
+        "status_check": 6,
+        "proposals_prepared": 1,
         "report_generated": 1
       }
     }

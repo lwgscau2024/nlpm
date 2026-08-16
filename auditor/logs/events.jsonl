@@ -3977,3 +3977,4 @@
 {"timestamp":"2026-08-16T00:26:55Z","workflow":"track","event":"status_check","run_id":"31916850610","run_number":718,"data":{"contributed":54,"tracked":39,"case_study_ready":43,"rule_adopted":2}}
 {"timestamp":"2026-08-16T04:24:42Z","workflow":"track","event":"status_check","run_id":"31926168337","run_number":719,"data":{"contributed":54,"tracked":39,"case_study_ready":43,"rule_adopted":2}}
 {"timestamp":"2026-08-16T08:18:36Z","workflow":"track","event":"status_check","run_id":"31935674702","run_number":720,"data":{"contributed":54,"tracked":39,"case_study_ready":43,"rule_adopted":2}}
+{"timestamp":"2026-08-16T09:09:41Z","workflow":"refine-rules","event":"proposals_prepared","run_id":"31938300255","run_number":20,"data":{"proposals":0,"skipped_existing_open":1}}

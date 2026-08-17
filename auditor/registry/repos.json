@@ -4061,7 +4061,7 @@
             "CC-terminology-drift",
             "R05"
           ],
-          "stale_90d_emitted": false
+          "stale_90d_emitted": true
         }
       ],
       "rule_adopted": false,

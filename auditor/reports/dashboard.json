@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-16T22:36:37Z",
+  "generated_at": "2026-08-17T22:38:11Z",
   "since": null,
   "summary": {
-    "total_repos": 289,
+    "total_repos": 291,
     "total_findings": 5338,
     "high_findings": 1811,
     "total_advisories": 22,
@@ -2724,6 +2724,18 @@
       "vocab_drift_high": 0
     },
     {
+      "repo": "ccch1mneyyy/dsh-TUI",
+      "status": "discovered",
+      "stars": 1667,
+      "score": null,
+      "security": null,
+      "total_findings": 0,
+      "high_findings": 0,
+      "medium_findings": 0,
+      "vocab_drift_count": 0,
+      "vocab_drift_high": 0
+    },
+    {
       "repo": "ccplugins/awesome-claude-code-plugins",
       "status": "contributed",
       "stars": null,
@@ -3041,6 +3053,18 @@
       "stars": 27150,
       "score": 77,
       "security": "REVIEW",
+      "total_findings": 0,
+      "high_findings": 0,
+      "medium_findings": 0,
+      "vocab_drift_count": 0,
+      "vocab_drift_high": 0
+    },
+    {
+      "repo": "microsoft/power-platform-skills",
+      "status": "discovered",
+      "stars": 710,
+      "score": null,
+      "security": null,
       "total_findings": 0,
       "high_findings": 0,
       "medium_findings": 0,
@@ -5521,6 +5545,16 @@
         "scan_complete": 1,
         "status_check": 6,
         "proposals_prepared": 1,
+        "report_generated": 1,
+        "dashboard_rendered": 1
+      }
+    },
+    {
+      "day": "2026-08-17",
+      "counts": {
+        "status_check": 6,
+        "search_complete": 1,
+        "finding_outcome": 1,
         "report_generated": 1
       }
     }

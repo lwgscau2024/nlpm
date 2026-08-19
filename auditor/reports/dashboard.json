@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-18T22:38:39Z",
+  "generated_at": "2026-08-19T22:38:23Z",
   "since": null,
   "summary": {
     "total_repos": 291,
@@ -2485,7 +2485,7 @@
     },
     {
       "repo": "JuliusBrussee/caveman",
-      "status": "contributed",
+      "status": "tracked",
       "stars": 22505,
       "score": 92,
       "security": "CLEAR",
@@ -5565,6 +5565,15 @@
         "status_check": 5,
         "no_narrative": 1,
         "finding_outcome": 5,
+        "report_generated": 1,
+        "dashboard_rendered": 1
+      }
+    },
+    {
+      "day": "2026-08-19",
+      "counts": {
+        "status_check": 6,
+        "finding_outcome": 3,
         "report_generated": 1
       }
     }

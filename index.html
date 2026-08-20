@@ -880,9 +880,22 @@
   <!-- Sticky Navbar -->
   <nav class="navbar">
     <div class="container nav-inner">
-      <a href="#" class="nav-logo">
-        <span class="logo-badge">NLPM</span>
-        <span>Natural Language Studio</span>
+      <a href="#" class="nav-logo" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <!-- Pure SVG Logo -->
+        <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="130%" y2="130%">
+              <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#312e81;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" rx="22" fill="url(#logo-grad)" />
+          <!-- Terminal Prompt > -->
+          <path d="M 30 35 L 50 50 L 30 65" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          <!-- Blinking Cursor / Underscore -->
+          <rect x="55" y="58" width="20" height="10" rx="2" fill="#10b981" />
+        </svg>
+        <span style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">NLPM 自然语言包管理器</span>
       </a>
       <div class="nav-links">
         <a href="#arch" class="nav-link">心智模型</a>

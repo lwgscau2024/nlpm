@@ -911,6 +911,29 @@
       height: 22px;
     }
 
+  
+    /* --- Light Mode Refinements --- */
+    [data-theme="light"] code {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--accent-hover);
+    }
+    [data-theme="light"] .prompt-box {
+      background: var(--bg-tertiary);
+      border-color: rgba(0,0,0,0.1);
+    }
+    [data-theme="light"] .cli-code {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    [data-theme="light"] table th {
+      background: var(--bg-tertiary);
+      border-bottom-color: rgba(0,0,0,0.15);
+    }
+    [data-theme="light"] table td {
+      border-bottom-color: rgba(0,0,0,0.08);
+    }
+
   </style>
 </head>
 <body data-theme="dark">
@@ -1856,6 +1879,13 @@
     <span>✓ Prompt 已成功复制到剪贴板！</span>
   </div>
 
+    <!-- Back to Top Button -->
+  <button id="backToTopBtn" class="back-to-top" aria-label="返回顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 15l-6-6-6 6"/>
+    </svg>
+  </button>
+
   <script>
     // 1. Theme Toggle
     function toggleTheme() {
@@ -2105,10 +2135,12 @@
     // 9. Back to Top Logic
     const backToTopBtn = document.getElementById("backToTopBtn");
     window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        backToTopBtn.classList.add("show");
-      } else {
-        backToTopBtn.classList.remove("show");
+      if (backToTopBtn) {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.add("show");
+        } else {
+          backToTopBtn.classList.remove("show");
+        }
       }
     });
     if (backToTopBtn) {
@@ -2121,12 +2153,6 @@
     generatePrompt();
   </script>
 
-  <!-- Back to Top Button -->
-  <button id="backToTopBtn" class="back-to-top" aria-label="返回顶部">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 15l-6-6-6 6"/>
-    </svg>
-  </button>
 
 </body>
 </html>

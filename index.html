@@ -1432,7 +1432,7 @@
           <span id="generatedPrompt" class="generated-prompt-text">
             帮我体检一下 skills/doc-to-audio 这个技能写得规不规范，有错顺便帮我修掉。
           </span>
-          <button class="copy-btn" onclick="copyGeneratedPrompt(this)">📋 复制 Prompt</button>
+          <button class="copy-btn">📋 复制 Prompt</button>
         </div>
       </div>
     </section>
@@ -1531,7 +1531,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">帮我体检一下 skills/doc-to-audio 这个技能写得规不规范，有错顺便帮我修掉。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong><code>nlpm-check skills/doc-to-audio</code> (单体独立模式)</div>
@@ -1548,7 +1548,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">用 strict 严格模式跑一遍工作区全部技能的静态扫描，看看有没有任何 warning。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong><code>nlpm-check --strict skills/</code></div>
@@ -1565,7 +1565,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">按照 NLPM 的 50 条军规和 100 分制打分标尺，给 skills/cover-director/SKILL.md 打个分，列出具体扣分项和优化后的重构版本。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong>加载 <code>skills/scoring</code> + <code>skills/rules</code> 评审模型</div>
@@ -1582,7 +1582,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">帮我做一下安全审计，检查这段系统提示词是否存在提示词注入风险、越狱隐患或敏感路径泄露。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong>加载 <code>nlpm/agents/security-scanner.md</code></div>
@@ -1599,7 +1599,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">对照 vocabulary 正典词汇表，检查 skills/manage-idea-galaxy 里面有没有同义词混用或概念漂移。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong>提取 <code>skills/vocabulary/registry.yaml</code> 词汇基准</div>
@@ -1616,7 +1616,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">按照 NL-TDD 规范，为 skills/doc-to-audio 编写 3 个正向触发用例和 2 个负向抑制反例测试规格。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong>加载 <code>skills/testing</code> + <code>nlpm/agents/tester.md</code></div>
@@ -1633,7 +1633,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">我想写一个新技能 video-script-master，请先参考 nlpm/auditor/exemplars/ 里的 95 分标杆案例，帮我按照顶级标准设计目录结构和 SKILL.md。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong>检索 <code>nlpm/auditor/exemplars/</code> 高分 Few-shot</div>
@@ -1650,7 +1650,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">检查一下工作区的 7 个 NLPM 规范技能有没有和上游发生漂移，有的话帮我一键同步对齐。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong><code>python3 scripts/localize_nlpm_skills.py</code></div>
@@ -1667,7 +1667,7 @@
           </div>
           <div class="prompt-box">
             <span class="prompt-text">帮我生成一份当前工作区全量技能的 HTML 质检报告，并产出 README 徽章 json。</span>
-            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+            <button class="copy-btn">📋 复制 Prompt</button>
           </div>
           <div class="prompt-details">
             <div><strong>后台调度：</strong><code>nlpm-check --json skills/ | nlpm-badge</code> + <code>nlpm-report</code></div>

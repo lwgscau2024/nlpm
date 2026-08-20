@@ -701,6 +701,21 @@ def check_plugin(plugin_root: Path, nested_skip: set[Path] | None = None) -> lis
 
 # ----- output -----
 
+def check_standalone(root: Path) -> list[Finding]:
+    """Checks for a directory of standalone skills with no plugin manifest.
+
+    Covers flat skill pools (e.g. <workspace>/skills/<name>/SKILL.md) that
+    live outside any .claude-plugin/plugin.json tree: runs the frontmatter
+    and spec checks that don't need a manifest.
+    """
+    findings: list[Finding] = []
+    check_skill_frontmatter(root, findings)
+    check_agent_frontmatter(root, findings)
+    check_command_frontmatter(root, findings)
+    check_hook_event_names(root, findings)
+    return findings
+
+
 def render_human(findings: list[Finding], plugin_root: Path, strict: bool, quiet: bool) -> None:
     """Print a human-readable single-plugin report. Grouped HIGH/MEDIUM/LOW."""
     high = [f for f in findings if f.confidence == "high"]
@@ -868,9 +883,23 @@ def main(argv: list[str] | None = None) -> int:
         all_roots = find_subplugin_roots(start)
 
     if not all_roots:
+        # Standalone-skill fallback: no plugin manifest anywhere, but the
+        # target holds bare SKILL.md files. Check them instead of failing.
+        start_res = start.resolve()
+        standalone_skills = walk_skill_files(start_res)
+        if standalone_skills:
+            findings = check_standalone(start_res)
+            if args.json:
+                render_json(findings, start_res)
+            else:
+                render_human(findings, start_res, strict=args.strict, quiet=args.quiet)
+            if args.strict:
+                return 1 if findings else 0
+            return 1 if any(f.confidence == "high" for f in findings) else 0
+
         print(
-            f"nlpm-check: no .claude-plugin/plugin.json found at, above, or "
-            f"within {start}",
+            f"nlpm-check: no .claude-plugin/plugin.json or SKILL.md found "
+            f"at, above, or within {start}",
             file=sys.stderr,
         )
         return 2

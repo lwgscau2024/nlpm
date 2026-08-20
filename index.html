@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NLPM 全功能全景与自然语言交互中枢 | Natural Language Package Manager</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --bg-card: rgba(17, 24, 39, 0.75);
+      --bg-input: rgba(15, 23, 42, 0.9);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.45);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-primary: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.2);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #06b6d4;
+      --purple: #a855f7;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-input: #ffffff;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.5);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent-glow: rgba(99, 102, 241, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 40%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Sticky Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(11, 15, 25, 0.85);
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="light"] .navbar {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav-logo .logo-badge {
+      background: linear-gradient(135deg, var(--accent-primary), var(--purple));
+      color: white;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover { color: var(--accent-primary); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover { border-color: var(--accent-primary); transform: scale(1.05); }
+
+    /* Hero Section */
+    .hero {
+      padding: 60px 0 36px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .hero-badge .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 18px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 780px;
+      margin: 0 auto 36px;
+    }
+
+    /* Stats Banner */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      text-align: center;
+      transition: all 0.25s;
+    }
+
+    .stat-box:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px var(--accent-glow);
+    }
+
+    .stat-num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-desc { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Section Base */
+    section { margin-bottom: 72px; }
+
+    .sec-header {
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .sec-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sec-title {
+      font-size: 1.65rem;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sec-title::before {
+      content: "";
+      width: 4px;
+      height: 22px;
+      background: var(--accent-primary);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .sec-desc { font-size: 0.95rem; color: var(--text-secondary); }
+
+    /* Architecture Flow Chart */
+    .arch-flow {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      position: relative;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .arch-card:hover { border-color: var(--border-highlight); transform: translateY(-2px); }
+    .arch-step-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
+
+    .arch-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .arch-text { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Interactive Tabs */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-secondary);
+      padding: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards Grid */
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card-item {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s;
+      position: relative;
+    }
+
+    .card-item:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px var(--accent-glow);
+    }
+
+    .card-tag {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+    }
+
+    .card-tag.cli { color: var(--info); background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); }
+    .card-tag.agent { color: var(--purple); background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+    .card-tag.spec { color: var(--warning); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
+    .card-tag.exemplar { color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .card-name { font-size: 1.1rem; font-weight: 700; }
+    .card-body { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 18px; flex-grow: 1; }
+    .card-foot {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Interactive Prompt Generator Tool */
+    .builder-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .builder-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+
+    .form-select, .form-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-select:focus, .form-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .builder-output {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-highlight);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .generated-prompt-text {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      color: #38bdf8;
+      font-size: 1.05rem;
+      word-break: break-word;
+    }
+
+    /* Scoring Calculator Widget */
+    .calculator-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 28px;
+    }
+
+    @media (max-width: 900px) {
+      .calculator-box { grid-template-columns: 1fr; }
+    }
+
+    .calc-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .calc-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .calc-item:hover { border-color: var(--border-highlight); background: var(--bg-tertiary); }
+    .calc-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-primary); }
+    .calc-penalty-badge {
+      margin-left: auto;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.12);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .calc-score-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 6px solid var(--success);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px var(--success-glow);
+    }
+
+    .score-circle .score-num { font-size: 2.2rem; font-weight: 900; line-height: 1; }
+    .score-circle .score-max { font-size: 0.8rem; color: var(--text-muted); }
+    .score-verdict { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .score-comment { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Prompt Gallery Section */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .search-input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      min-width: 280px;
+      flex-grow: 1;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .pill-filter {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .pill-filter:hover, .pill-filter.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      border-color: var(--accent-primary);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Prompt Card */
+    .prompt-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      margin-bottom: 18px;
+      transition: all 0.2s ease;
+      display: grid;
+      gap: 12px;
+    }
+
+    .prompt-card:hover {
+      border-color: var(--border-highlight);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prompt-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prompt-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .prompt-title { font-size: 1.05rem; font-weight: 700; }
+
+    .prompt-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .prompt-text {
+      color: #38bdf8;
+      font-weight: 500;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: white;
+    }
+
+    .prompt-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+    }
+
+    .prompt-details strong { color: #e2e8f0; }
+
+    /* 50 Rules Browser */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+
+    .rule-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .rule-card:hover { border-color: var(--border-highlight); transform: translateY(-2px); }
+
+    .rule-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .rule-id {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--accent-primary);
+    }
+
+    .rule-cat {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+    }
+
+    .rule-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+    .rule-desc { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+
+    .rule-example {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid var(--danger);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .rule-example.good { border-left-color: var(--success); }
+
+    /* Tables */
+    .table-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { background: rgba(0, 0, 0, 0.35); color: var(--text-primary); padding: 14px 18px; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+    td { padding: 14px 18px; color: var(--text-secondary); border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
+
+    code {
+      font-family: var(--font-mono);
+      background: rgba(0, 0, 0, 0.35);
+      color: #f472b6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    
+    /* Enhanced Copy Feedback & Toast */
+    .prompt-box.copied {
+      animation: copyGlow 1.2s ease;
+      border-color: var(--success) !important;
+    }
+
+    @keyframes copyGlow {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #065f46;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #ffffff;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.92rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.3);
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    #toast .toast-icon {
+      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.2);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--success);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 9999;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 48px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    footer a { color: var(--accent-primary); text-decoration: none; font-weight: 600; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="logo-badge">NLPM</span>
+        <span>Natural Language Studio</span>
+      </a>
+      <div class="nav-links">
+        <a href="#arch" class="nav-link">心智模型</a>
+        <a href="#matrix" class="nav-link">能力矩阵</a>
+        <a href="#builder" class="nav-link">Prompt组装器</a>
+        <a href="#calculator" class="nav-link">打分模拟器</a>
+        <a href="#gallery" class="nav-link">交互画廊</a>
+        <a href="#rules" class="nav-link">50条军规</a>
+        <a href="#cli" class="nav-link">CLI速查</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" title="切换明暗主题">🌓</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        NLPM v1.1.2 · Natural Language Package Manager
+      </div>
+      <h1>自然语言编程全功能交互中枢</h1>
+      <p class="hero-subtitle">
+        为大模型时代的开发者打造的自然语言代码规范、纳秒级静态门禁与专家评审体系。<br>
+        无需记忆底层命令，用日常对话驱动自动化工作流。
+      </p>
+
+      <!-- Stats Grid -->
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-num">4 大维度</div>
+          <div class="stat-desc">CLI · Agent · 范本 · 技能</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">50 条军规</div>
+          <div class="stat-desc">R01 ~ R50 黄金法则</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">100 分制</div>
+          <div class="stat-desc">Scorer 对抗打分引擎</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">10ms 门禁</div>
+          <div class="stat-desc">Pre-commit 提交拦截</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">8 大场景</div>
+          <div class="stat-desc">全覆盖自然语言 Prompt</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Section 1: Architecture -->
+    <section id="arch">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">核心心智模型：自然语言即指令 (NL as Interface)</h2>
+          <p class="sec-desc">你负责用日常大白话表达诉求，AI 负责在后台无缝调度 CLI 工具与专家审计流</p>
+        </div>
+      </div>
+
+      <div class="arch-flow">
+        <div class="arch-card">
+          <div class="arch-step-badge">1</div>
+          <div class="arch-title">用户自然语言输入</div>
+          <div class="arch-text">“帮我体检 doc-to-audio 并给它打个分”</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-step-badge">2</div>
+          <div class="arch-title">AI 意图解析</div>
+          <div class="arch-text">识别为静态检查 + 100分制打分复合任务</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-step-badge">3</div>
+          <div class="arch-title">底层工具自动调度</div>
+          <div class="arch-text">后台调用 <code>nlpm-check</code> + <code>scorer</code></div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-step-badge">4</div>
+          <div class="arch-title">结构化交付</div>
+          <div class="arch-text">输出扣分项、修改建议并一键修复</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: 4 Capability Pillars -->
+    <section id="matrix">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">NLPM 四大能力全景矩阵</h2>
+          <p class="sec-desc">涵盖命令行门禁、大模型专家 Agent、标杆 Few-shot 案例与 17 个规范技能</p>
+        </div>
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="cli">1. CLI 命令行工具</button>
+          <button class="tab-btn" data-tab="agents">2. 专家 Agent 系统</button>
+          <button class="tab-btn" data-tab="exemplars">3. 标杆高分案例库</button>
+          <button class="tab-btn" data-tab="skills">4. 17 个规范技能</button>
+        </div>
+      </div>
+
+      <!-- Tab 1: CLI -->
+      <div id="tab-cli" class="tab-content active">
+        <div class="grid-cards">
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">CLI 工具</span>
+              <div class="card-head">
+                <div class="card-icon">✓</div>
+                <div class="card-name">nlpm-check</div>
+              </div>
+              <div class="card-body">
+                纯 Python 静态分析器。秒级校验 Frontmatter 闭合、必填字段、kebab-case 命名一致性。包含单体技能回退（check_standalone 本地补丁）。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>全局软链挂载</span>
+              <code>nlpm-check skills/</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">CI 徽章</span>
+              <div class="card-head">
+                <div class="card-icon">🛡️</div>
+                <div class="card-name">nlpm-badge</div>
+              </div>
+              <div class="card-body">
+                将 <code>nlpm-check --json</code> 结果转换为 Shields.io 兼容的标准 Endpoint JSON，直接嵌入 README 作为绿色质检徽章。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>输入: STDIN JSON</span>
+              <code>nlpm-badge > badge.json</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">HTML 报告</span>
+              <div class="card-head">
+                <div class="card-icon">📊</div>
+                <div class="card-name">nlpm-report</div>
+              </div>
+              <div class="card-body">
+                将检查数据编译为单页自包含的现代 HTML 交互报告，直观呈现整个工作区的规范合规率与违规详情。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>输出: 独立 HTML 网页</span>
+              <code>nlpm-report --out reports/</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">词汇提取</span>
+              <div class="card-head">
+                <div class="card-icon">📖</div>
+                <div class="card-name">nlpm-build-vocab-data</div>
+              </div>
+              <div class="card-body">
+                从 <code>registry.yaml</code> 提取项目正典动词与名词，生成结构化词汇表 JSON，供跨组件概念一致性比对。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>输入: registry.yaml</span>
+              <code>--registry &lt;path&gt;</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">Git 门禁</span>
+              <div class="card-head">
+                <div class="card-icon">🔒</div>
+                <div class="card-name">Pre-commit Hook</div>
+              </div>
+              <div class="card-body">
+                挂载于 <code>.git/hooks/pre-commit</code>。仅当暂存区触及 SKILL.md/agents 时触发，通过沙盒隔离快照在 10ms 内拦截不合格提交。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>耗时: ~10ms</span>
+              <code>git commit 自动拦截</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag cli">快照运维</span>
+              <div class="card-head">
+                <div class="card-icon">⚡</div>
+                <div class="card-name">localize_nlpm_skills</div>
+              </div>
+              <div class="card-body">
+                单向同步脚手架。从 <code>nlpm/</code> 上游将 7 个规范技能一键本地化转译至 <code>skills/</code>，自动注入 Notice 消除命令幻觉与死链。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>参数: --check 校验</span>
+              <code>python3 scripts/...</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Agents -->
+      <div id="tab-agents" class="tab-content">
+        <div class="grid-cards">
+          <div class="card-item">
+            <div>
+              <span class="card-tag agent">质量评审</span>
+              <div class="card-head">
+                <div class="card-icon">🎯</div>
+                <div class="card-name">scorer (100分打分)</div>
+              </div>
+              <div class="card-body">
+                基于 50 条军规的对抗式打分专家。全维度审查结构、歧义性、触发边界，输出扣分明细与重构版本。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: nlpm/agents/scorer.md</span>
+              <code>100分扣分标尺</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag agent">安全防护</span>
+              <div class="card-head">
+                <div class="card-icon">🛡️</div>
+                <div class="card-name">security-scanner</div>
+              </div>
+              <div class="card-body">
+                扫描 System Prompt 覆盖、越狱（Jailbreak）隐患、跨工作区文件遍历及 Token / 密钥硬编码泄漏风险。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: security-scanner.md</span>
+              <code>注入与隐私防御</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag agent">概念治理</span>
+              <div class="card-head">
+                <div class="card-icon">🔤</div>
+                <div class="card-name">vocab-drift-scanner</div>
+              </div>
+              <div class="card-body">
+                检测自然语言中的同义词泛滥（如混用 prompt / instruction / task）与概念漂移，保障团队语义一致。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: vocab-drift-scanner.md</span>
+              <code>受控词汇表比对</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag agent">TDD 引擎</span>
+              <div class="card-head">
+                <div class="card-icon">🧪</div>
+                <div class="card-name">tester (NL-TDD)</div>
+              </div>
+              <div class="card-body">
+                自然语言测试驱动开发。在编写正式 Prompt / Skill 前，自动生成正向用例、负向抑制反例与结构断言。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: nlpm/agents/tester.md</span>
+              <code>Given-When-Then</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag agent">废话过滤</span>
+              <div class="card-head">
+                <div class="card-icon">✂️</div>
+                <div class="card-name">vague-scanner</div>
+              </div>
+              <div class="card-body">
+                扫描“尽量”、“尽可能”、“高质量”、“优雅”等无法机器量化的模糊定词，提升提示词的确定性与执行力。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: vague-scanner.md</span>
+              <code>反模式排查</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Exemplars -->
+      <div id="tab-exemplars" class="tab-content">
+        <div class="grid-cards">
+          <div class="card-item">
+            <div>
+              <span class="card-tag exemplar">标杆样本</span>
+              <div class="card-head">
+                <div class="card-icon">🏆</div>
+                <div class="card-name">auditor/exemplars/ 案例库</div>
+              </div>
+              <div class="card-body">
+                收录了顶级开源项目的高分（90~100 分）真实产物样本。包含标准的 Agent、Skill、Rule、Command 真实范文。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>用途: Few-shot 学习标杆</span>
+              <code>nlpm/auditor/exemplars/</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag exemplar">实战复盘</span>
+              <div class="card-head">
+                <div class="card-icon">📚</div>
+                <div class="card-name">case-studies/ 演进案例</div>
+              </div>
+              <div class="card-body">
+                汇集了大型复杂工作流从混乱低分逐步重构为高分模块的演进全记录与架构权衡剖析。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>用途: 架构设计参考</span>
+              <code>nlpm/case-studies/</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Skills -->
+      <div id="tab-skills" class="tab-content">
+        <div class="grid-cards">
+          <div class="card-item">
+            <div>
+              <span class="card-tag spec">已激活快照</span>
+              <div class="card-head">
+                <div class="card-icon">📜</div>
+                <div class="card-name">7 个基础规范技能</div>
+              </div>
+              <div class="card-body">
+                <code>rules</code>（50条军规）、<code>scoring</code>（打分标尺）、<code>patterns</code>、<code>testing</code>、<code>vocabulary</code>、<code>writing-prompts</code>、<code>writing-skills</code>。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>位置: skills/&lt;name&gt;/</span>
+              <code>git 完整跟踪</code>
+            </div>
+          </div>
+
+          <div class="card-item">
+            <div>
+              <span class="card-tag spec">按需引入</span>
+              <div class="card-head">
+                <div class="card-icon">📦</div>
+                <div class="card-name">10 个进阶可用技能</div>
+              </div>
+              <div class="card-body">
+                <code>writing-agents</code>、<code>writing-rules</code>、<code>writing-hooks</code>、<code>writing-plugins</code>、<code>security</code>、<code>orchestration</code>、<code>conventions-*</code>。
+              </div>
+            </div>
+            <div class="card-foot">
+              <span>源: nlpm/skills/nlpm/</span>
+              <code>一键脚本引入</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Prompt Generator Tool -->
+    <section id="builder">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">🛠️ 自然语言 Prompt 智能组装器</h2>
+          <p class="sec-desc">选择你的目标与组件，一键生成最标准、最精准的自然语言交互指令</p>
+        </div>
+      </div>
+
+      <div class="builder-box">
+        <div class="builder-controls">
+          <div class="form-group">
+            <label class="form-label">1. 选择组件类型</label>
+            <select id="builderComponent" class="form-select">
+              <option value="skill">AI 技能 (Skill)</option>
+              <option value="prompt">提示词 (Prompt)</option>
+              <option value="agent">智能体规范 (Agent)</option>
+              <option value="rule">全局规则 (Rule)</option>
+              <option value="command">斜杠命令 (Command)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">2. 选择执行动作</label>
+            <select id="builderAction" class="form-select">
+              <option value="check">静态语法与格式体检 (nlpm-check)</option>
+              <option value="score">100 分制质量打分与扣分定位 (scorer)</option>
+              <option value="security">安全性与防提示词注入审计 (security)</option>
+              <option value="vocab">概念一致性与词汇漂移排查 (vocab-drift)</option>
+              <option value="tdd">编写 NL-TDD 自动化测试规格 (tester)</option>
+              <option value="exemplar">参考 95+ 标杆案例进行重构 (Few-shot)</option>
+              <option value="sync">检查快照漂移并一键同步 (localize)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. 输入目标名称 / 路径</label>
+            <input type="text" id="builderTarget" class="form-input" value="skills/doc-to-audio" placeholder="例如: skills/my-skill">
+          </div>
+        </div>
+
+        <div class="builder-output">
+          <span id="generatedPrompt" class="generated-prompt-text">
+            帮我体检一下 skills/doc-to-audio 这个技能写得规不规范，有错顺便帮我修掉。
+          </span>
+          <button class="copy-btn" onclick="copyGeneratedPrompt(this)">📋 复制 Prompt</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Scoring Calculator -->
+    <section id="calculator">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">🧮 100 分制质量打分模拟器 (Scoring Calculator)</h2>
+          <p class="sec-desc">勾选常见的缺陷反模式，实时模拟 NLPM Scorer 引擎的扣分算法与等级判定</p>
+        </div>
+      </div>
+
+      <div class="calculator-box">
+        <div class="calc-checklist">
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="5" >
+            <span>包含模糊定词（如“尽量”、“适当”、“高质量”等）</span>
+            <span class="calc-penalty-badge">-5 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="4" >
+            <span>缺少参数默认值或空输入异常处理逻辑</span>
+            <span class="calc-penalty-badge">-4 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="10" >
+            <span>Agent 缺少至少 2 个标准的 <code>&lt;example&gt;</code> 示例块</span>
+            <span class="calc-penalty-badge">-10 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="5" >
+            <span>单文件超过 500 行，未进行职责拆分与按需披露</span>
+            <span class="calc-penalty-badge">-5 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="5" >
+            <span>包含跨仓库相对死链或未沙盒隔离路径</span>
+            <span class="calc-penalty-badge">-5 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="10" >
+            <span>工具权限未遵循最小特权原则（如只读 Agent 赋予写入权限）</span>
+            <span class="calc-penalty-badge">-10 分</span>
+          </label>
+          <label class="calc-item">
+            <input type="checkbox" data-penalty="3" >
+            <span>存在负向禁止词（“不要做X”而非正面指导“做Y”）</span>
+            <span class="calc-penalty-badge">-3 分</span>
+          </label>
+        </div>
+
+        <div class="calc-score-card">
+          <div id="scoreCircle" class="score-circle">
+            <span id="scoreVal" class="score-num">100</span>
+            <span class="score-max">/ 100</span>
+          </div>
+          <div id="scoreVerdict" class="score-verdict" style="color: var(--success);">满分标杆 (Perfect)</div>
+          <div id="scoreComment" class="score-comment">符合全部 50 条军规，生产就绪！</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Prompt Gallery -->
+    <section id="gallery">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">📚 日常自然语言交互范例库 (Prompt Gallery)</h2>
+          <p class="sec-desc">覆盖 8 大高频场景，点击“复制 Prompt”直接粘贴给 AI 发送即可！</p>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-bar">
+        <input type="text" id="promptSearch" class="search-input" placeholder="🔍 按关键词搜索 (按 / 键快速聚焦)...">
+        <button class="pill-filter active" data-category="all">全部场景</button>
+        <button class="pill-filter" data-category="check">门禁体检</button>
+        <button class="pill-filter" data-category="score">质量打分</button>
+        <button class="pill-filter" data-category="security">安全防护</button>
+        <button class="pill-filter" data-category="vocab">词汇治理</button>
+        <button class="pill-filter" data-category="tdd">TDD测试</button>
+        <button class="pill-filter" data-category="exemplar">标杆学习</button>
+        <button class="pill-filter" data-category="sync">快照同步</button>
+        <button class="pill-filter" data-category="report">报告与徽章</button>
+      </div>
+
+      <!-- Prompts List -->
+      <div id="promptsList">
+
+        <div class="prompt-card" data-cat="check">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">门禁体检</span>
+              <span class="prompt-title">场景 1：单个技能快速体检与自动修复</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">帮我体检一下 skills/doc-to-audio 这个技能写得规不规范，有错顺便帮我修掉。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong><code>nlpm-check skills/doc-to-audio</code> (单体独立模式)</div>
+            <div><strong>预期交付：</strong>秒级返回 Frontmatter 规范，若有语法或命名错误自动提出修改方案。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="check">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">门禁体检</span>
+              <span class="prompt-title">场景 2：工作区全量技能严格门禁扫描</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">用 strict 严格模式跑一遍工作区全部技能的静态扫描，看看有没有任何 warning。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong><code>nlpm-check --strict skills/</code></div>
+            <div><strong>预期交付：</strong>全量扫描 36 个技能目录，存在任何警告即 Exit 1 阻断。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="score">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">质量打分</span>
+              <span class="prompt-title">场景 3：100 分制质量打分与对抗式审计</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">按照 NLPM 的 50 条军规和 100 分制打分标尺，给 skills/cover-director/SKILL.md 打个分，列出具体扣分项和优化后的重构版本。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong>加载 <code>skills/scoring</code> + <code>skills/rules</code> 评审模型</div>
+            <div><strong>预期交付：</strong>输出清晰扣分账单（如 -5分 模糊定词），并给出重构后的满分代码。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="security">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">安全防护</span>
+              <span class="prompt-title">场景 4：安全性与防提示词注入审计</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">帮我做一下安全审计，检查这段系统提示词是否存在提示词注入风险、越狱隐患或敏感路径泄露。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong>加载 <code>nlpm/agents/security-scanner.md</code></div>
+            <div><strong>预期交付：</strong>风险等级评定（High/Med/Low），并自动注入抗注入防御锚点。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="vocab">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">词汇治理</span>
+              <span class="prompt-title">场景 5：概念一致性与词汇漂移检测</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">对照 vocabulary 正典词汇表，检查 skills/manage-idea-galaxy 里面有没有同义词混用或概念漂移。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong>提取 <code>skills/vocabulary/registry.yaml</code> 词汇基准</div>
+            <div><strong>预期交付：</strong>指出弃用动词（如 analyze → score）并规范所有动作命名。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="tdd">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">TDD测试</span>
+              <span class="prompt-title">场景 6：自然语言测试驱动开发 (NL-TDD)</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">按照 NL-TDD 规范，为 skills/doc-to-audio 编写 3 个正向触发用例和 2 个负向抑制反例测试规格。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong>加载 <code>skills/testing</code> + <code>nlpm/agents/tester.md</code></div>
+            <div><strong>预期交付：</strong>生成 Given-When-Then 三段式断言用例，用于防范能力退化。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="exemplar">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">标杆学习</span>
+              <span class="prompt-title">场景 7：参考 95+ 官方标杆案例新建技能</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">我想写一个新技能 video-script-master，请先参考 nlpm/auditor/exemplars/ 里的 95 分标杆案例，帮我按照顶级标准设计目录结构和 SKILL.md。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong>检索 <code>nlpm/auditor/exemplars/</code> 高分 Few-shot</div>
+            <div><strong>预期交付：</strong>输出包含 Trigger 矩阵、边界约束与标准 YAML 头部的完整代码。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="sync">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">快照同步</span>
+              <span class="prompt-title">场景 8：检查技能快照漂移并一键对齐</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">检查一下工作区的 7 个 NLPM 规范技能有没有和上游发生漂移，有的话帮我一键同步对齐。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong><code>python3 scripts/localize_nlpm_skills.py</code></div>
+            <div><strong>预期交付：</strong>自动执行本地化转译、消除死链并给出比对一致性报告。</div>
+          </div>
+        </div>
+
+        <div class="prompt-card" data-cat="report">
+          <div class="prompt-header">
+            <div class="prompt-title-group">
+              <span class="prompt-badge">报告与徽章</span>
+              <span class="prompt-title">场景 9：生成 HTML 报告与 README 质检徽章</span>
+            </div>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-text">帮我生成一份当前工作区全量技能的 HTML 质检报告，并产出 README 徽章 json。</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">📋 复制 Prompt</button>
+          </div>
+          <div class="prompt-details">
+            <div><strong>后台调度：</strong><code>nlpm-check --json skills/ | nlpm-badge</code> + <code>nlpm-report</code></div>
+            <div><strong>预期交付：</strong>产出 <code>nlpm-badge.json</code> 与本地可直接打开的 HTML 报告。</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 6: 50 Rules Browser -->
+    <section id="rules">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">📜 50 条军规核心法则检索手册 (The 50 Rules)</h2>
+          <p class="sec-desc">自然语言编程的宪章与 SSOT 风格指南，点击可随时查阅各条款与正反例</p>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R01</span>
+              <span class="rule-cat">通用法则</span>
+            </div>
+            <div class="rule-title">严禁使用缺乏量化标准的模糊定词</div>
+            <div class="rule-desc">"适当"、"合理"、"高质量"、"必要时"等词汇毫无约束力，必须替换为可量化指标。扣分: -2/处 (上限-20)。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误："使用适当的错误处理。"</div>
+            <div class="rule-example good">✅ 正确："从所有 API handler 返回 Result&lt;T, AppError&gt;。"</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R02</span>
+              <span class="rule-cat">通用法则</span>
+            </div>
+            <div class="rule-title">每一行提示词都必须赚回其 Token 价值</div>
+            <div class="rule-desc">上下文窗口是有限的黄金资产。如果一行内容不会改变大模型的行为，立即删除它。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误："你是一个非常聪明、乐于助人且专业的助手。"</div>
+            <div class="rule-example good">✅ 正确："你是一名 Rust 异步并发专家，专攻 Tokio 运行时。"</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R03</span>
+              <span class="rule-cat">通用法则</span>
+            </div>
+            <div class="rule-title">正面指导优于消极禁止 (Pink Elephant Effect)</div>
+            <div class="rule-desc">使用“使用 X”而非“不要使用 Y”。禁止性表述容易引发大模型的注意力固着。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误："千万不要在循环中写异步 await。"</div>
+            <div class="rule-example good">✅ 正确："使用 Promise.all() 进行批量并发请求。"</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R04</span>
+              <span class="rule-cat">技能规范</span>
+            </div>
+            <div class="rule-title">Description 是触发器而非摘要</div>
+            <div class="rule-desc">至少包含 3 个匹配真实用户提问的具体动词短语，确保按需精准唤醒。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误："description: 很有用的 React 辅助工具。"</div>
+            <div class="rule-example good">✅ 正确："description: 当调试 React 重渲染、修复 hook 依赖数组时触发。"</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R05</span>
+              <span class="rule-cat">技能规范</span>
+            </div>
+            <div class="rule-title">单文件严格控制在 500 行以内</div>
+            <div class="rule-desc">超过 500 行会导致上下文膨胀。应拆分为有明确作用域的子技能并通过引用组合。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误：一个包含 1500 行的庞大巨石 SKILL.md。</div>
+            <div class="rule-example good">✅ 正确：拆分为核心规范 + references/ 附属文档按需读取。</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R09</span>
+              <span class="rule-cat">智能体规范</span>
+            </div>
+            <div class="rule-title">必须提供至少 2 个完整 &lt;example&gt; 块</div>
+            <div class="rule-desc">每个示例必须包含：上下文 (Context) + 用户意图 + 助手结构化响应。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误：只有抽象的任务描述，零具体样例。</div>
+            <div class="rule-example good">✅ 正确：提供多场景 Few-shot 对话示例块。</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R11</span>
+              <span class="rule-cat">智能体规范</span>
+            </div>
+            <div class="rule-title">工具权限严格遵循最小特权原则</div>
+            <div class="rule-desc">只读类 Agent 严禁配置写入/运行工具。权限越界属于高危安全隐患。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误：只读审查 Agent 拥有 write_to_file 权限。</div>
+            <div class="rule-example good">✅ 正确：审查 Agent 仅分配 view_file / grep 工具。</div>
+          </div>
+        </div>
+
+        <div class="rule-card">
+          <div>
+            <div class="rule-head">
+              <span class="rule-id">R14</span>
+              <span class="rule-cat">斜杠命令</span>
+            </div>
+            <div class="rule-title">多步骤工作流必须显式数字编号</div>
+            <div class="rule-desc">散落在自然语言段落中的流程极易遗漏，必须使用 1. 2. 3. 严格时序定义。</div>
+          </div>
+          <div>
+            <div class="rule-example">❌ 错误：“首先做A，接着做B，然后还要做C。”</div>
+            <div class="rule-example good">✅ 正确：“步骤 1：扫描；步骤 2：校验；步骤 3：提交。”</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: CLI Cheat Sheet -->
+    <section id="cli">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">💻 命令行与运维速查 (CLI Cheat Sheet)</h2>
+          <p class="sec-desc">直接在 Linux 终端执行的常用运维与质检命令汇总</p>
+        </div>
+      </div>
+
+      <div class="table-box">
+        <table>
+          <thead>
+            <tr>
+              <th>操作目标</th>
+              <th>执行命令</th>
+              <th>说明与预期返回</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>全量技能扫描</strong></td>
+              <td><code>nlpm-check skills/</code></td>
+              <td>单体模式自动校验 36 个技能，返回 clean 或错误列表</td>
+            </tr>
+            <tr>
+              <td><strong>单个技能体检</strong></td>
+              <td><code>nlpm-check skills/loki</code></td>
+              <td>极速扫描单技能 Frontmatter 与命名规范</td>
+            </tr>
+            <tr>
+              <td><strong>严格模式 (CI 级)</strong></td>
+              <td><code>nlpm-check --strict skills/</code></td>
+              <td>存在任何 warning 即退出码 Exit 1</td>
+            </tr>
+            <tr>
+              <td><strong>生成 README 徽章</strong></td>
+              <td><code>nlpm-check --json skills/ | nlpm-badge > nlpm-badge.json</code></td>
+              <td>输出 Shields.io 兼容的标准徽章端点 JSON</td>
+            </tr>
+            <tr>
+              <td><strong>检查快照漂移</strong></td>
+              <td><code>python3 scripts/localize_nlpm_skills.py --check</code></td>
+              <td>校验 7 个工作区技能是否与 nlpm SSOT 对齐</td>
+            </tr>
+            <tr>
+              <td><strong>一键同步快照</strong></td>
+              <td><code>python3 scripts/localize_nlpm_skills.py</code></td>
+              <td>从上游重新生成本地化快照（注入 Notice、降级死链）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>NLPM Studio · <code>lei</code> 工作区自然语言编程工程资产 · 2026-08-20</p>
+      <p style="margin-top: 6px; font-size: 0.82rem;">
+        遵循 <a href="https://agentskills.io" target="_blank">agentskills.io</a> 规范与 Claude Code Plugin 架构
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">
+    <span>✓ Prompt 已成功复制到剪贴板！</span>
+  </div>
+
+  <script>
+    // 1. Theme Toggle
+    function toggleTheme() {
+      const body = document.body;
+      const cur = body.getAttribute("data-theme") || "dark";
+      const next = cur === "dark" ? "light" : "dark";
+      body.setAttribute("data-theme", next);
+      localStorage.setItem("nlpm_theme", next);
+    }
+
+    const savedTheme = localStorage.getItem("nlpm_theme");
+    if (savedTheme) { document.body.setAttribute("data-theme", savedTheme); }
+
+    // 2. Tab Switching with addEventListener
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute("data-tab");
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(p => p.classList.remove("active"));
+        this.classList.add("active");
+        const target = document.getElementById("tab-" + tabId);
+        if (target) {
+          target.classList.add("active");
+        }
+      });
+    });
+
+    // 3. Prompt Builder
+    const compEl = document.getElementById("builderComponent");
+    const actionEl = document.getElementById("builderAction");
+    const targetEl = document.getElementById("builderTarget");
+    const outEl = document.getElementById("generatedPrompt");
+
+    function generatePrompt() {
+      if (!compEl || !actionEl || !targetEl || !outEl) return;
+      const comp = compEl.value;
+      const action = actionEl.value;
+      const target = targetEl.value.trim() || "当前组件";
+
+      const map = { skill: "技能", prompt: "提示词", agent: "智能体", rule: "规则", command: "命令" };
+      const compName = map[comp] || "组件";
+
+      let prompt = "";
+      if (action === "check") {
+        prompt = `帮我体检一下 ${target} 这个${compName}写得规不规范，有错顺便帮我修掉。`;
+      } else if (action === "score") {
+        prompt = `按照 NLPM 的 50 条军规和 100 分制打分标尺，给 ${target} 打个分，列出具体扣分项和优化后的重构版本。`;
+      } else if (action === "security") {
+        prompt = `帮我做一下安全审计，检查 ${target} 是否存在提示词注入风险、越狱隐患或敏感路径泄露。`;
+      } else if (action === "vocab") {
+        prompt = `对照 vocabulary 正典词汇表，检查 ${target} 里面有没有同义词混用或概念漂移。`;
+      } else if (action === "tdd") {
+        prompt = `按照 NL-TDD 规范，为 ${target} 编写 3 个正向触发用例和 2 个负向抑制反例测试规格。`;
+      } else if (action === "exemplar") {
+        prompt = `我想重构/新建 ${target}，请先参考 nlpm/auditor/exemplars/ 里的 95 分标杆案例，帮我按照顶级标准设计结构和内容。`;
+      } else if (action === "sync") {
+        prompt = `检查一下工作区的 7 个 NLPM 规范技能有没有和上游发生漂移，有的话帮我一键同步对齐。`;
+      }
+      outEl.innerText = prompt;
+    }
+
+    if (compEl) compEl.addEventListener("change", generatePrompt);
+    if (actionEl) actionEl.addEventListener("change", generatePrompt);
+    if (targetEl) targetEl.addEventListener("input", generatePrompt);
+
+    // 4. Scoring Calculator
+    function calcScore() {
+      let score = 100;
+      const checkboxes = document.querySelectorAll(".calc-checklist input[type='checkbox']");
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          score -= parseInt(cb.getAttribute("data-penalty") || 0, 10);
+        }
+      });
+      if (score < 0) score = 0;
+
+      const numEl = document.getElementById("scoreVal");
+      const circleEl = document.getElementById("scoreCircle");
+      const verdictEl = document.getElementById("scoreVerdict");
+      const commentEl = document.getElementById("scoreComment");
+
+      if (numEl) numEl.innerText = score;
+
+      if (circleEl && verdictEl && commentEl) {
+        if (score >= 95) {
+          circleEl.style.borderColor = "var(--success)";
+          circleEl.style.boxShadow = "0 0 20px var(--success-glow)";
+          verdictEl.innerText = "满分标杆 (Perfect)";
+          verdictEl.style.color = "var(--success)";
+          commentEl.innerText = "符合全部 50 条军规，生产就绪！";
+        } else if (score >= 85) {
+          circleEl.style.borderColor = "var(--info)";
+          circleEl.style.boxShadow = "0 0 20px rgba(6, 182, 212, 0.2)";
+          verdictEl.innerText = "优秀可用 (Good)";
+          verdictEl.style.color = "var(--info)";
+          commentEl.innerText = "质量上乘，建议修补轻微扣分项。";
+        } else if (score >= 70) {
+          circleEl.style.borderColor = "var(--warning)";
+          circleEl.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.2)";
+          verdictEl.innerText = "待优化 (Needs Fix)";
+          verdictEl.style.color = "var(--warning)";
+          commentEl.innerText = "存在多处反模式，建议重构后再发布。";
+        } else {
+          circleEl.style.borderColor = "var(--danger)";
+          circleEl.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.2)";
+          verdictEl.innerText = "高危重写 (Rewrite)";
+          verdictEl.style.color = "var(--danger)";
+          commentEl.innerText = "违反关键红线，禁止直接上线。";
+        }
+      }
+    }
+
+    document.querySelectorAll(".calc-checklist input[type='checkbox']").forEach(cb => {
+      cb.addEventListener("change", calcScore);
+    });
+
+    // 5. Robust Clipboard Helper
+    function writeToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      }
+      return fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        return Promise.resolve();
+      } catch (err) {
+        document.body.removeChild(textarea);
+        return Promise.reject(err);
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.innerHTML = `<span class="toast-icon">✓</span><span>${msg || "已成功复制到剪贴板！"}</span>`;
+      toast.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.classList.remove("show"); }, 2600);
+    }
+
+    // 6. Global Event Delegation for Copy Buttons
+    document.addEventListener("click", function(e) {
+      const copyBtn = e.target.closest(".copy-btn");
+      if (!copyBtn) return;
+      e.preventDefault();
+
+      let textToCopy = "";
+      let targetBox = null;
+      let toastMsg = "✓ Prompt 已复制！可直接在 AI 对话框粘贴 (Ctrl+V)";
+
+      // Check if builder button or gallery button
+      const promptBox = copyBtn.closest(".prompt-box");
+      const builderOutput = copyBtn.closest(".builder-output");
+
+      if (promptBox) {
+        const textEl = promptBox.querySelector(".prompt-text");
+        if (textEl) textToCopy = textEl.innerText.trim();
+        targetBox = promptBox;
+      } else if (builderOutput) {
+        const textEl = document.getElementById("generatedPrompt");
+        if (textEl) textToCopy = textEl.innerText.trim();
+        targetBox = builderOutput;
+        toastMsg = "✓ 组装 Prompt 已复制！可直接在 AI 对话框粘贴 (Ctrl+V)";
+      }
+
+      if (!textToCopy) return;
+
+      writeToClipboard(textToCopy).then(() => {
+        const orig = copyBtn.innerHTML;
+        copyBtn.innerHTML = "✓ 已复制到剪贴板！";
+        copyBtn.style.background = "var(--success)";
+        copyBtn.style.color = "#ffffff";
+        copyBtn.style.borderColor = "var(--success)";
+        copyBtn.style.boxShadow = "0 0 14px var(--success-glow)";
+
+        if (targetBox) targetBox.classList.add("copied");
+        showToast(toastMsg);
+
+        setTimeout(() => {
+          copyBtn.innerHTML = orig;
+          copyBtn.style.background = "";
+          copyBtn.style.color = "";
+          copyBtn.style.borderColor = "";
+          copyBtn.style.boxShadow = "";
+          if (targetBox) targetBox.classList.remove("copied");
+        }, 2200);
+      });
+    });
+
+    // 7. Gallery Category Filters
+    let currentCategory = "all";
+    document.querySelectorAll(".pill-filter").forEach(btn => {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        currentCategory = this.getAttribute("data-category") || "all";
+        document.querySelectorAll(".pill-filter").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        applyFilters();
+      });
+    });
+
+    const searchInput = document.getElementById("promptSearch");
+    if (searchInput) {
+      searchInput.addEventListener("input", applyFilters);
+    }
+
+    function applyFilters() {
+      const query = (searchInput ? searchInput.value : "").toLowerCase().trim();
+      const cards = document.querySelectorAll("#promptsList .prompt-card");
+      cards.forEach(card => {
+        const cat = card.getAttribute("data-cat");
+        const text = card.innerText.toLowerCase();
+        const matchCat = (currentCategory === "all" || cat === currentCategory);
+        const matchQ = (!query || text.includes(query));
+        card.style.display = (matchCat && matchQ) ? "grid" : "none";
+      });
+    }
+
+    // 8. Keyboard Shortcuts
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "SELECT") {
+        e.preventDefault();
+        if (searchInput) searchInput.focus();
+      } else if (e.key === "Escape") {
+        if (searchInput) {
+          searchInput.blur();
+          searchInput.value = "";
+          applyFilters();
+        }
+      }
+    });
+
+    // Initial Run
+    generatePrompt();
+  </script>
+</body>
+</html>

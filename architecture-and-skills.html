@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NLPM 架构设计原理与技能全景矩阵 | Natural Language Package Manager</title>
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --bg-card: rgba(17, 24, 39, 0.85);
+      --bg-input: rgba(15, 23, 42, 0.9);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.45);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-primary: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.2);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #06b6d4;
+      --purple: #a855f7;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: rgba(255, 255, 255, 0.95);
+      --bg-input: #ffffff;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.5);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent-glow: rgba(99, 102, 241, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.09) 0px, transparent 45%);
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Sticky Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(11, 15, 25, 0.88);
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="light"] .navbar {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover, .nav-link.active { color: var(--accent-primary); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: var(--accent-primary);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-nav-home:hover {
+      background: var(--accent-primary);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .theme-toggle {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover { border-color: var(--accent-primary); transform: scale(1.05); }
+
+    /* Hero Section */
+    .hero {
+      padding: 50px 0 32px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 860px;
+      margin: 0 auto 36px;
+    }
+
+    /* Stats Grid */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      text-align: center;
+      transition: all 0.25s;
+    }
+
+    .stat-box:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px var(--accent-glow);
+    }
+
+    .stat-num {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-desc { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Section Styles */
+    section { margin-bottom: 64px; }
+
+    .sec-header {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .sec-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sec-title {
+      font-size: 1.6rem;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sec-title::before {
+      content: "";
+      width: 4px;
+      height: 22px;
+      background: var(--accent-primary);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .sec-desc { font-size: 0.95rem; color: var(--text-secondary); }
+
+    /* Core Pillars Tabs */
+    .pillar-tabs-nav {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-secondary);
+      padding: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .pillar-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .pillar-btn:hover { color: var(--text-primary); }
+    .pillar-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+    }
+
+    .pillar-panel {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      backdrop-filter: blur(12px);
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .pillar-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pillar-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .pillar-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .pillar-h3 { font-size: 1.35rem; font-weight: 750; }
+    .pillar-sub { font-size: 0.9rem; color: var(--text-secondary); }
+
+    .pillar-content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .pillar-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: all 0.2s;
+    }
+
+    .pillar-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+    }
+
+    .pillar-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pillar-card-body {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .pillar-card-body code {
+      background: rgba(0, 0, 0, 0.25);
+      color: #818cf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    [data-theme="light"] .pillar-card-body code {
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--accent-hover);
+    }
+
+    /* Interactive Workflow diagram */
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    .flow-step-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .flow-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+    }
+
+    .flow-label { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+    .flow-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Skills Grid & Filters */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 7px 16px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { color: var(--text-primary); border-color: var(--border-highlight); }
+    .filter-btn.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: white;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s;
+      position: relative;
+    }
+
+    .skill-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px var(--accent-glow);
+    }
+
+    .skill-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .skill-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .skill-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .skill-icon-create { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .skill-icon-review { background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); }
+    .skill-icon-spec { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .skill-icon-qa { background: rgba(168, 85, 247, 0.15); color: var(--purple); }
+
+    .skill-name {
+      font-size: 1.1rem;
+      font-weight: 750;
+      color: var(--text-primary);
+    }
+
+    .skill-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+    }
+
+    .badge-create { color: var(--success); background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); }
+    .badge-review { color: var(--accent-primary); background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); }
+    .badge-spec { color: var(--warning); background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); }
+    .badge-gate { color: var(--purple); background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+
+    .skill-path {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+
+    .skill-desc {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .skill-meta-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    .skill-meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .skill-meta-item:last-child { margin-bottom: 0; }
+    .meta-key { font-weight: 700; color: var(--text-muted); min-width: 58px; }
+    .meta-val { color: var(--text-primary); }
+
+    .skill-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-copy-prompt {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-copy-prompt:hover {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: white;
+    }
+
+    /* Comparison Matrix Table */
+    .matrix-table-wrap {
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      color: var(--text-primary);
+      font-weight: 750;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(99, 102, 241, 0.04); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--success);
+      color: white;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s ease;
+      z-index: 2000;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 34px; height: 34px;">
+          <defs>
+            <linearGradient id="logo-grad-arch" x1="0%" y1="0%" x2="130%" y2="130%">
+              <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#312e81;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect width="100" height="100" rx="22" fill="url(#logo-grad-arch)" />
+          <path d="M 30 35 L 50 50 L 30 65" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          <rect x="55" y="58" width="20" height="10" rx="2" fill="#10b981" />
+        </svg>
+        <span>NLPM 架构与技能全景</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#pillars" class="nav-link active">四大运行原理</a>
+        <a href="#creation-skills" class="nav-link">创建与生产技能</a>
+        <a href="#review-skills" class="nav-link">审查与加固技能</a>
+        <a href="#pipeline" class="nav-link">端到端流水线</a>
+        <a href="#matrix" class="nav-link">对照矩阵</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="index.html" class="btn-nav-home">
+          <span>🏠 返回 NLPM 主页</span>
+        </a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="切换明暗主题">🌓</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Hero Header -->
+    <header class="hero">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        Architecture Design & Full Skills Catalog
+      </div>
+      <h1>NLPM 架构设计原理与全量技能体系</h1>
+      <p class="hero-subtitle">
+        从“自然语言即源码”的工程哲学出发，深度拆解跨仓同步、本地语义匹配、冲突防范与自然语言服务交付的底层逻辑，并提供 Skill 创建与审查的全矩阵图谱。
+      </p>
+
+      <!-- Stats Grid -->
+      <div class="stats-bar">
+        <div class="stat-box">
+          <div class="stat-num">4 大运行支柱</div>
+          <div class="stat-desc">跨仓同步 · 本地匹配 · 冲突隔离 · 交付闭环</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">7 个生产技能</div>
+          <div class="stat-desc">孵化 · 骨架 · 精炼 · 本地化</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">8 个审查技能</div>
+          <div class="stat-desc">50条军规 · 100分打分 · 反模式 · 对抗修复</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">Tier 1 / 2 分层</div>
+          <div class="stat-desc">Universal 开放规范 + 多生态 Overlay</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Section 1: 4 Core Architecture Pillars -->
+    <section id="pillars">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">一、 NLPM 核心架构与四大运行原理</h2>
+          <p class="sec-desc">自然语言包管理器是如何在分布式开源生态与本地智能体运行时之间建立高可靠桥梁的？</p>
+        </div>
+      </div>
+
+      <!-- Pillar Tabs -->
+      <div class="pillar-tabs-nav">
+        <button class="pillar-btn active" data-pillar="sync">1. 🔄 外部仓库同步更新</button>
+        <button class="pillar-btn" data-pillar="match">2. 🎯 本地调用与语义匹配</button>
+        <button class="pillar-btn" data-pillar="conflict">3. 🛡️ 冲突防范与稳定性</button>
+        <button class="pillar-btn" data-pillar="delivery">4. ⚡ 自然语言服务交付逻辑</button>
+      </div>
+
+      <!-- Pillar 1: Sync -->
+      <div id="pillar-sync" class="pillar-panel active">
+        <div class="pillar-header">
+          <div class="pillar-icon">🔄</div>
+          <div>
+            <div class="pillar-h3">外部仓库同步更新与生态演化飞轮 (Upstream Sync & Evolution)</div>
+            <div class="pillar-sub">双 Remote 拓扑解耦 + Vendoring 本地化快照隔离 + Auditor 全网闭环审计</div>
+          </div>
+        </div>
+
+        <div class="flow-steps">
+          <div class="flow-step-item">
+            <div class="flow-num">1</div>
+            <div class="flow-label">上游原仓 (Upstream)</div>
+            <div class="flow-sub">开源社区最新演进 (xiaolai/nlpm)</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">2</div>
+            <div class="flow-label">双 Remote 借放 (SSOT)</div>
+            <div class="flow-sub">manage_external_repo.py 自动 rebase</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">3</div>
+            <div class="flow-label">本地化变换引擎</div>
+            <div class="flow-sub">localize_nlpm_skills.py 结构转换</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">4</div>
+            <div class="flow-label">生产快照库 (skills/)</div>
+            <div class="flow-sub">受 Git 严格跟踪的稳定运行时</div>
+          </div>
+        </div>
+
+        <div class="pillar-content-grid">
+          <div class="pillar-card">
+            <div class="pillar-card-title">🌐 双 Remote 拓扑解耦</div>
+            <div class="pillar-card-body">
+              外部借放仓库统一配置双远程源：<code>upstream</code>（原作者仓库）与 <code>origin</code>（个人 Fork）。通过运维脚手架 <code>manage_external_repo.py sync nlpm</code> 执行 <code>git fetch upstream && git rebase upstream/main</code>，平滑拉取上游最新特性，绝不暴力冲掉本地补丁。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">📦 Vendoring 本地化快照隔离</div>
+            <div class="pillar-card-body">
+              借放仓库（<code>nlpm/</code>）作为 SSOT 单源真相被 <code>.gitignore</code> 忽略，不作为运行时直接脏依赖。工作区通过自动化脚本 <code>localize_nlpm_skills.py</code> 自动完成 Frontmatter 嵌套规范化、跨仓相对死链降级为纯文本，并注入权威 <code>Dependency Notice</code>。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">🚀 Auditor 全网自演化飞轮</div>
+            <div class="pillar-card-body">
+              上游 NLPM 仓库通过 GitHub Actions 自动爬取全球数千个插件仓库，运行静态门禁与打分，并向作者提交修复 PR。评分 ≥ 90 的高分范本沉淀为 <code>auditor/exemplars/</code>，每周自动反哺规则库引用，实现规范与生态最佳实践同步演进。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 2: Matching -->
+      <div id="pillar-match" class="pillar-panel">
+        <div class="pillar-header">
+          <div class="pillar-icon">🎯</div>
+          <div>
+            <div class="pillar-h3">本地调用匹配与渐进式暴露 (Discovery & Semantic Matching)</div>
+            <div class="pillar-sub">Tier 1/2 分层规范 + Description 语义加权路由 + 两阶段按需加载</div>
+          </div>
+        </div>
+
+        <div class="flow-steps">
+          <div class="flow-step-item">
+            <div class="flow-num">1</div>
+            <div class="flow-label">轻量级元数据</div>
+            <div class="flow-sub">启动仅载入 Name + Description (~100词)</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">2</div>
+            <div class="flow-label">语义路由加权</div>
+            <div class="flow-sub">LLM 意图与 Description API 文档匹配</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">3</div>
+            <div class="flow-label">JIT 按需注入</div>
+            <div class="flow-sub">读取 SKILL.md 正文 SOP 进入 Context</div>
+          </div>
+          <div class="flow-step-item">
+            <div class="flow-num">4</div>
+            <div class="flow-label">多级回退寻址</div>
+            <div class="flow-sub">skills/ -> SSOT -> 内建目录 -> 软降级</div>
+          </div>
+        </div>
+
+        <div class="pillar-content-grid">
+          <div class="pillar-card">
+            <div class="pillar-card-title">📑 Tier 1 通用 + Tier 2 平台 Overlay</div>
+            <div class="pillar-card-body">
+              <strong>Tier 1 通用层</strong>：基于 <code>agentskills.io</code> 开放规范，统一以 <code>SKILL.md</code> 与 <code>AGENTS.md</code> 为底座。<br>
+              <strong>Tier 2 平台层</strong>：按需加载 Claude Code（<code>commands/</code>）、Codex CLI（<code>.agents/skills/</code>）与 Antigravity（<code>.gemini/skills/</code>）专属覆盖层。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">⚡ 渐进式上下文加载 (Progressive Disclosure)</div>
+            <div class="pillar-card-body">
+              防止一次性塞入全部技能导致 Context 爆仓。<strong>Description 即面向 LLM 的 API 描述</strong>，系统在初始化时仅构建轻量级能力目录；命中特定意图后，才通过只读工具读取 <code>SKILL.md</code> 正文载入领域知识。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">🔍 多级回退寻址链 (Fallback Chain)</div>
+            <div class="pillar-card-body">
+              寻址优先级：<code>当前工作区生产快照 (skills/<name>/)</code> &rarr; <code>借放 SSOT 仓库 (nlpm/skills/nlpm/...)</code> &rarr; <code>全局内建目录 (~/.gemini/...)</code>。非核心依赖缺失时标记 <code>[SKIPPED]</code> 软降级，保障主链路永不崩溃。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 3: Conflict -->
+      <div id="pillar-conflict" class="pillar-panel">
+        <div class="pillar-header">
+          <div class="pillar-icon">🛡️</div>
+          <div>
+            <div class="pillar-h3">冲突防范与稳定性治理 (Conflict Prevention & Isolation)</div>
+            <div class="pillar-sub">命名空间隔离 + nlpm-check 静态门禁 + R51 受控词汇表 + 刚性硬锚点校验</div>
+          </div>
+        </div>
+
+        <div class="pillar-content-grid">
+          <div class="pillar-card">
+            <div class="pillar-card-title">🏷️ 命名空间与物理隔离</div>
+            <div class="pillar-card-body">
+              外部插件采用 <code>@scope</code> 隔离（如 <code>nlpm@xiaolai</code>）；每个技能独占独立的目录，严禁在工作区根目录散落任何未约定的零散临时文件，保证文件树纯净。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">🚪 Manifest-vs-Disk 静态一致性门禁</div>
+            <div class="pillar-card-body">
+              杜绝“磁盘有文件但清单漏记导致无法激活”的隐形 Bug。独立校验器 <code>bin/nlpm-check</code> 在 Pre-commit 与 CI 阶段以毫秒级速度双向核对清单与物理文件，拦截重名、死链与孤儿文件。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">📖 受控词汇表消除歧义 (Rule R51)</div>
+            <div class="pillar-card-body">
+              通过 <code>vocabulary/registry.yaml</code> 规范统一核心动词（如 <code>score</code> vs <code>review</code>）与名词，防止多个 Skill 出现语义重叠、同义词漂移或意图抢占冲突。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">⚓ 刚性硬锚点校验 (Anchor Verification)</div>
+            <div class="pillar-card-body">
+              同步脚本在重放变换时采用精确行特征匹配。一旦上游重构导致锚点命中数 &ne; 1，脚本<strong>立即报错退出并中断同步</strong>，强制人工审查，杜绝模糊匹配带来的静默代码漂移。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 4: Delivery -->
+      <div id="pillar-delivery" class="pillar-panel">
+        <div class="pillar-header">
+          <div class="pillar-icon">⚡</div>
+          <div>
+            <div class="pillar-h3">自然语言指令响应与交付机制 (Principle & Logic)</div>
+            <div class="pillar-sub">确定性工具与大模型推理解耦 + NL-TDD 测试驱动闭环</div>
+          </div>
+        </div>
+
+        <div class="pillar-content-grid">
+          <div class="pillar-card">
+            <div class="pillar-card-title">⚖️ 确定性工具（客观法官）</div>
+            <div class="pillar-card-body">
+              Python / Regex 毫秒级执行机械性检查：扫描禁止词/模糊量词（Rule R01）、检查行数与 Token 预算（Rule R05）、校验 YAML Frontmatter 与文件语法。客观输出精确违规位置与扣分项。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">🩺 智能体推理（执业医生）</div>
+            <div class="pillar-card-body">
+              大模型负责高维语义判断：理解业务上下文、逻辑连贯性、提示词信息密度与架构设计。依据确定性工具输出的客观扣分项，对症下药实施重构，避免大模型“既当裁判又当运动员”。
+            </div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-card-title">🧪 自然语言测试驱动开发 (NL-TDD)</div>
+            <div class="pillar-card-body">
+              <strong>1. Write Spec</strong>：编写行为测试规范（<code>.nlpm-test/*.spec.md</code>）；<br>
+              <strong>2. Red Phase</strong>：运行测试因未达标报错红灯；<br>
+              <strong>3. Refactor</strong>：编写与优化提示词；<br>
+              <strong>4. Green Phase</strong>：回归测试直到各项指标全绿（Score &ge; 80）。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Full Skills Catalog -->
+    <section id="creation-skills">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">二、 Skill 生产与审查体系全景技能库</h2>
+          <p class="sec-desc">工作区（skills/）与 NLPM 规范库中用于创建、精炼、审查、打分与加固技能的全部工具集</p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">全部技能 (15+)</button>
+          <button class="filter-btn" data-filter="create">🛠️ 创建与生产类</button>
+          <button class="filter-btn" data-filter="review">🔍 审查与评估类</button>
+          <button class="filter-btn" data-filter="spec">📐 规范与底座类</button>
+        </div>
+      </div>
+
+      <!-- Skills Grid -->
+      <div class="skills-grid" id="skillsGrid">
+
+        <!-- 1. skill-incubator -->
+        <div class="skill-card" data-category="create">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-create">🌱</div>
+                <div class="skill-name">skill-incubator</div>
+              </div>
+              <span class="skill-badge badge-create">生产流水线</span>
+            </div>
+            <div class="skill-path">skills/skill-incubator/SKILL.md</div>
+            <div class="skill-desc">
+              Skill 生产的标准化五阶段流水线（需求明确 &rarr; 骨架设计 &rarr; 指令精炼 &rarr; 规则审查 &rarr; 打分验收 &rarr; 回归测试）。统一调度下游 9 个专业子技能，强制输出过程审查报告。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“技能孵化器”、“孵化 skill”、“skill孵化”</span>
+              </div>
+              <div class="skill-meta-item">
+                <span class="meta-key">产物契约：</span>
+                <span class="meta-val">review-findings.md + score-report.md + test-report.md</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('我想新建一个技能，帮我用技能孵化器走一遍 Standard Path A 完整流程。')">📋 复制新建 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 2. skill-creator -->
+        <div class="skill-card" data-category="create">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-create">✨</div>
+                <div class="skill-name">skill-creator</div>
+              </div>
+              <span class="skill-badge badge-create">评测驱动创建</span>
+            </div>
+            <div class="skill-path">skills/skill-creator/SKILL.md</div>
+            <div class="skill-desc">
+              评测驱动的 Skill 创建与迭代优化引擎。擅长从对话历史中抓取意图并提取工作流、构建 Eval 测试用例、量化跑分 benchmark 并调优 Frontmatter Description 触发准确率。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“创建新技能”、“优化 skill 触发词”、“run evals”</span>
+              </div>
+              <div class="skill-meta-item">
+                <span class="meta-key">核心优势：</span>
+                <span class="meta-val">Eval 评测脚本与 Description 防欠触发调优</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('根据刚才的对话步骤，帮我提取并创建一个新的 skill，并编写对应的测试用例。')">📋 复制创建 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 3. writing-skills -->
+        <div class="skill-card" data-category="spec">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-spec">📝</div>
+                <div class="skill-name">writing-skills</div>
+              </div>
+              <span class="skill-badge badge-spec">跨工具开放标准</span>
+            </div>
+            <div class="skill-path">skills/writing-skills/SKILL.md</div>
+            <div class="skill-desc">
+              跨生态 SKILL.md 编写标准 (SSOT)，遵循 agentskills.io 开放规范。定义了 YAML Frontmatter 规范、三层渐进式暴露机制与目录文件组织原则。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">适用生态：</span>
+                <span class="meta-val">Claude Code · Codex CLI · Antigravity 通用</span>
+              </div>
+              <div class="skill-meta-item">
+                <span class="meta-key">红线要求：</span>
+                <span class="meta-val">严格遵守三层加载体系，正文建议 &lt; 500 行</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('请按照 writing-skills 的开放规范，为我设计一个标准的 SKILL.md 骨架。')">📋 复制骨架 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 4. loki -->
+        <div class="skill-card" data-category="create">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-create">⚡</div>
+                <div class="skill-name">loki</div>
+              </div>
+              <span class="skill-badge badge-create">指令精炼去噪</span>
+            </div>
+            <div class="skill-path">skills/loki/SKILL.md</div>
+            <div class="skill-desc">
+              Prompt 优化与重构专家。将输入的草率、模糊指令重构为高密度、精细规范的最佳生产版本，剔除废词套话与认知负担，强化逻辑约束。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“优化提示词”、“精炼 prompt”、“/loki”</span>
+              </div>
+              <div class="skill-meta-item">
+                <span class="meta-key">行为原则：</span>
+                <span class="meta-val">只精炼指令本身，绝不直接执行被优化的指令内容</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('调用 loki 帮我优化这段 skill 提示词，剔除废话并强化执行约束。')">📋 复制精炼 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 5. writing-prompts -->
+        <div class="skill-card" data-category="create">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-create">🎯</div>
+                <div class="skill-name">writing-prompts</div>
+              </div>
+              <span class="skill-badge badge-create">系统提示词工程</span>
+            </div>
+            <div class="skill-path">skills/writing-prompts/SKILL.md</div>
+            <div class="skill-desc">
+              系统级 Prompt 编写工程指南。包含角色定位清晰度、结构化输出、防注入（Injection Resistance）以及 Few-Shot 正反例编写模式。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">核心技术：</span>
+                <span class="meta-val">Role Clarity · XML Tags · Few-shot · Guardrails</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('按照 writing-prompts 规范，为当前 skill 补充防御性约束和 Few-shot 示例。')">📋 复制规范 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 6. localize-component -->
+        <div class="skill-card" data-category="create">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-create">📦</div>
+                <div class="skill-name">localize-component</div>
+              </div>
+              <span class="skill-badge badge-create">外部技能本地化</span>
+            </div>
+            <div class="skill-path">skills/localize-component/SKILL.md</div>
+            <div class="skill-desc">
+              外部复制、拉取或下载的 Skill、脚本与文档的本地化治理专家。遵循标准化 8 阶段 SOP，自动消除异地绝对路径、重定向产物目录并扫描冲突。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“组件本地化”、“Skill 本地化”、“引入外部技能”</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('帮我把刚引入的外部 skill 进行本地化适配，消除外部绝对路径并对齐规范。')">📋 复制本地化 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 7. rules (50 Rules) -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-review">⚖️</div>
+                <div class="skill-name">rules (50 条军规)</div>
+              </div>
+              <span class="skill-badge badge-review">黄金准则库</span>
+            </div>
+            <div class="skill-path">skills/rules/SKILL.md</div>
+            <div class="skill-desc">
+              自然语言编程的 50 条黄金法则（R01 ~ R50）。涵盖量化判定、禁止模糊量词（R01）、控制行数预算（R05）、必须给替代方案（R13）等全维度规则。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">权威地位：</span>
+                <span class="meta-val">NLPM 质量规范的 SSOT 风格与审查指南</span>
+              </div>
+              <div class="skill-meta-item">
+                <span class="meta-key">高频红线：</span>
+                <span class="meta-val">R01 模糊量词、R05 篇幅超标、R13 无替代方案禁止</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('对照 NLPM 50 条军规（rules），全面审查当前 skill 并列出所有违规项。')">📋 复制审查 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 8. scoring -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-review">🧮</div>
+                <div class="skill-name">scoring (100 分制)</div>
+              </div>
+              <span class="skill-badge badge-review">量化打分矩阵</span>
+            </div>
+            <div class="skill-path">skills/scoring/SKILL.md</div>
+            <div class="skill-desc">
+              确定性的 100 分制质量打分标尺与罚分字典。从 100 分起扣，每项缺陷扣分固定（如模糊词 -2，单体超标 -10）。评分 &ge; 90 生产就绪，&lt; 60 强制重写。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">分级标准：</span>
+                <span class="meta-val">90+ Excellent | 80-89 Good | 70-79 Adequate | &lt;60 Rewrite</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('根据 scoring 罚分字典给当前 skill 进行 100 分制打分，并输出明细报告。')">📋 复制打分 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 9. patterns -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-review">🔍</div>
+                <div class="skill-name">patterns (反模式排查)</div>
+              </div>
+              <span class="skill-badge badge-review">反模式库</span>
+            </div>
+            <div class="skill-path">skills/patterns/SKILL.md</div>
+            <div class="skill-desc">
+              反模式（Anti-patterns）与最佳实践体检库。专门排查自然语言中的“坏味道”：单体臃肿、只禁不导、只读 Agent 误赋写权限、Linter 重复校验等。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">检查重点：</span>
+                <span class="meta-val">Anti-patterns · Architectural Drift · Oversized Skills</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('调用 patterns 技能，检查当前 skill 是否存在反模式坏味道并给出改进方案。')">📋 复制反模式排查 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 10. vocabulary -->
+        <div class="skill-card" data-category="spec">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-spec">📖</div>
+                <div class="skill-name">vocabulary (受控词汇)</div>
+              </div>
+              <span class="skill-badge badge-spec">语义防歧义</span>
+            </div>
+            <div class="skill-path">skills/vocabulary/SKILL.md</div>
+            <div class="skill-desc">
+              受控词汇表注册表（Rule R51）。统一规范跨 Skill 的核心动词与名词，消除同义词混用，防止不同技能因用词漂移而在意图分发时发生碰撞。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">数据底座：</span>
+                <span class="meta-val">skills/vocabulary/registry.yaml</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('检查当前 skill 的动词和名词命名是否符合 vocabulary 受控词汇表规范。')">📋 复制词汇审查 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 11. testing -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-qa">🧪</div>
+                <div class="skill-name">testing (NL-TDD)</div>
+              </div>
+              <span class="skill-badge badge-gate">TDD 验证</span>
+            </div>
+            <div class="skill-path">skills/testing/SKILL.md</div>
+            <div class="skill-desc">
+              自然语言测试驱动开发（NL-TDD）规范。用于编写 <code>.spec.md</code> 测试规格、设定正向触发与负向抑制用例，验证 Skill 行为契约与触发准确率。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">规格目录：</span>
+                <span class="meta-val">.nlpm-test/*.spec.md</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('按照 testing 规范为当前 skill 编写 3 个正向触发用例和 2 个负向抑制反例。')">📋 复制 TDD Prompt</button>
+          </div>
+        </div>
+
+        <!-- 12. audit-fix -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-review">🛡️</div>
+                <div class="skill-name">audit-fix</div>
+              </div>
+              <span class="skill-badge badge-review">对抗式多智能体</span>
+            </div>
+            <div class="skill-path">skills/audit-fix/SKILL.md</div>
+            <div class="skill-desc">
+              强制多智能体闭环审查与加固。物理隔离 Auditor（审计员）、Fixer（修复者）、Verifier（验证者），严禁单模型自写自审，通过对抗式博弈彻底修复 Skill 与代码缺陷。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“审计并修复”、“/audit-fix”、“代码质量加固”</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('调用 /audit-fix，派发独立 Auditor 审查当前 skill 并让 Fixer 彻底修好。')">📋 复制对抗修复 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 13. delivery-reviewer -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-qa">🚦</div>
+                <div class="skill-name">delivery-reviewer</div>
+              </div>
+              <span class="skill-badge badge-gate">交付最终闸门</span>
+            </div>
+            <div class="skill-path">skills/delivery-reviewer/SKILL.md</div>
+            <div class="skill-desc">
+              交付前最终独立批判性审查专家。在 Skill 开发完成后、正式归档上线前，进行全局漏洞扫描、死链检测、硬编码路径排查与遗留风险评估。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“交付审查专家”、“能不能交付上线”、“交付前风险评估”</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('作为交付审查专家，对当前 skill 进行最终交付前独立审查，给出上线判定。')">📋 复制交付审查 Prompt</button>
+          </div>
+        </div>
+
+        <!-- 14. fix -->
+        <div class="skill-card" data-category="review">
+          <div>
+            <div class="skill-top">
+              <div class="skill-title-group">
+                <div class="skill-icon-wrap skill-icon-qa">🔧</div>
+                <div class="skill-name">fix</div>
+              </div>
+              <span class="skill-badge badge-gate">根因彻底修复</span>
+            </div>
+            <div class="skill-path">skills/fix/SKILL.md</div>
+            <div class="skill-desc">
+              彻底修复 Bug 或重构缺陷代码。遵循“No half measures”原则，拒绝胶布打补丁、吞掉异常或留 TODO，直接深入根因彻底重构。
+            </div>
+            <div class="skill-meta-box">
+              <div class="skill-meta-item">
+                <span class="meta-key">唤醒词：</span>
+                <span class="meta-val">“彻底修复 bug”、“重构脆弱代码”、“/fix”</span>
+              </div>
+            </div>
+          </div>
+          <div class="skill-actions">
+            <button class="btn-copy-prompt" onclick="copyPromptText('调用 /fix，彻底修复当前 skill 中被审计出的核心逻辑缺陷，拒绝临时补丁。')">📋 复制彻底修复 Prompt</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 3: End-to-End Pipeline -->
+    <section id="pipeline">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">三、 端到端 Skill 生产与审查标准流水线</h2>
+          <p class="sec-desc">从构思、起草、精炼到审查、打分与交付的全生命周期闭环流程</p>
+        </div>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%;">流水线阶段</th>
+              <th style="width: 25%;">调用的核心技能</th>
+              <th style="width: 35%;">执行动作与审查要点</th>
+              <th style="width: 25%;">输出成果与质量闸门</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>阶段 0 · 需求明确</strong></td>
+              <td><code>skill-creator</code> / 人工确认</td>
+              <td>确认核心痛点、至少 3 个高频触发词、输入输出格式与保存路径</td>
+              <td>确认单 / 需求输入</td>
+            </tr>
+            <tr>
+              <td><strong>阶段 1 · 骨架设计</strong></td>
+              <td><code>writing-skills</code></td>
+              <td>按照 agentskills.io 标准构建 Frontmatter、三层渐进式暴露目录结构</td>
+              <td>标准骨架 <code>SKILL.md</code></td>
+            </tr>
+            <tr>
+              <td><strong>阶段 2 · 指令精炼</strong></td>
+              <td><code>loki</code> + <code>writing-prompts</code></td>
+              <td>剔除废话套话，结构化输出约束，注入 Few-shot 正反例与防注入守卫</td>
+              <td>高密度指令正文</td>
+            </tr>
+            <tr>
+              <td><strong>阶段 3 · 规则审查</strong></td>
+              <td><code>rules</code> + <code>patterns</code> + <code>vocabulary</code></td>
+              <td>对照 50 条军规审查（查模糊量词 R01、篇幅 R05、替代方案 R13、受控词汇 R51）</td>
+              <td><code>review-findings.md</code> 缺陷清单</td>
+            </tr>
+            <tr>
+              <td><strong>阶段 4 · 量化打分</strong></td>
+              <td><code>scoring</code></td>
+              <td>按 100 分制扣分字典计算总分，判定是否达到 &ge; 80 分良好门槛</td>
+              <td><code>score-report.md</code> 打分报告</td>
+            </tr>
+            <tr>
+              <td><strong>阶段 5 · 测试验收</strong></td>
+              <td><code>testing</code> + <code>audit-fix</code> + <code>delivery-reviewer</code></td>
+              <td>执行 NL-TDD 正负用例验证，通过多智能体对抗加固，最终交付审查放行</td>
+              <td><code>test-report.md</code> + 生产就绪归档</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: Comparison Matrix -->
+    <section id="matrix">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <h2 class="sec-title">四、 传统开发 vs NLPM 架构对比矩阵</h2>
+          <p class="sec-desc">自然语言包管理器与传统代码开发模式的维度映射</p>
+        </div>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>治理维度</th>
+              <th>传统 Prompt / 脚本开发</th>
+              <th>NLPM 现代化自然语言工程</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>上游更新同步</strong></td>
+              <td>手工复制粘贴，容易漏改、改错且与上游脱节</td>
+              <td><strong>双 Remote + Vendoring 快照</strong>，脚本自动化重放变换并硬锚点拦截</td>
+            </tr>
+            <tr>
+              <td><strong>本地调用匹配</strong></td>
+              <td>全量塞入 Prompt 导致 Context 爆仓、意图碰撞</td>
+              <td><strong>两阶段渐进式暴露</strong>，Description 语义路由 + JIT 按需读取</td>
+            </tr>
+            <tr>
+              <td><strong>冲突与坏味道</strong></td>
+              <td>同名覆盖、清单漏配静默失效、同义词漂移</td>
+              <td><strong>nlpm-check 静态门禁</strong> + R51 受控词汇表 + Scoped 作用域隔离</td>
+            </tr>
+            <tr>
+              <td><strong>质量保证 (QA)</strong></td>
+              <td>碰运气式玄学调试，模型自写自审，质量不稳定</td>
+              <td><strong>确定性代码检查与 LLM 推理解耦</strong> + 100分制打分 + NL-TDD 闭环</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="toast">Prompt 已复制到剪贴板！</div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>NLPM 自然语言编程体系 · 架构设计与全量技能全景矩阵 · 2026-08</p>
+    </div>
+  </footer>
+
+  <script>
+    // 1. Theme Toggle
+    function toggleTheme() {
+      const body = document.body;
+      const cur = body.getAttribute("data-theme") || "dark";
+      const next = cur === "dark" ? "light" : "dark";
+      body.setAttribute("data-theme", next);
+      localStorage.setItem("nlpm_theme", next);
+    }
+
+    const savedTheme = localStorage.getItem("nlpm_theme");
+    if (savedTheme) { document.body.setAttribute("data-theme", savedTheme); }
+
+    // 2. Pillar Tabs
+    document.querySelectorAll(".pillar-btn").forEach(btn => {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        const pillarId = this.getAttribute("data-pillar");
+        document.querySelectorAll(".pillar-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".pillar-panel").forEach(p => p.classList.remove("active"));
+        this.classList.add("active");
+        const target = document.getElementById("pillar-" + pillarId);
+        if (target) { target.classList.add("active"); }
+      });
+    });
+
+    // 3. Filter Skills
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const filter = this.getAttribute("data-filter");
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        const cards = document.querySelectorAll(".skill-card");
+        cards.forEach(card => {
+          if (filter === "all") {
+            card.style.display = "flex";
+          } else {
+            const cat = card.getAttribute("data-category");
+            if (cat === filter) {
+              card.style.display = "flex";
+            } else {
+              card.style.display = "none";
+            }
+          }
+        });
+      });
+    });
+
+    // 4. Copy Prompt
+    function copyPromptText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Prompt 已复制到剪贴板！");
+      }).catch(err => {
+        console.error("复制失败: ", err);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

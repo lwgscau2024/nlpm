@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,6 +28,23 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = REPO_ROOT / "auditor" / "scripts" / "validate-rule-ids.py"
 RUBRIC = REPO_ROOT / "skills" / "nlpm" / "scoring" / "SKILL.md"
+
+def _child_python() -> str:
+    """PITFALL-PROC-007 local patch: AppImage agent sessions can hijack
+    sys.executable to point at the GUI host wrapper; spawning children from
+    it re-execs the host and dies with a Chromium sandbox FATAL (rc=-5).
+    Prefer the interpreter running these tests (dependency parity) and only
+    fall back to PATH / system candidates when sys.executable is not a real
+    python binary."""
+
+    candidates = [sys.executable, shutil.which("python3"), "/usr/bin/python3"]
+    for cand in candidates:
+        if cand and Path(cand).is_file():
+            name = Path(cand).name.lower()
+            if name.startswith("python") and not name.endswith(".appimage"):
+                return cand
+    return sys.executable
+
 
 
 def _load_validator_module():
@@ -51,7 +69,7 @@ class ValidatorSelfTest(unittest.TestCase):
 
     def test_self_test_passes(self):
         result = subprocess.run(
-            [sys.executable, str(VALIDATOR), "--self-test"],
+            [_child_python(), str(VALIDATOR), "--self-test"],
             capture_output=True, text=True, check=False,
         )
         self.assertEqual(result.returncode, 0, msg=f"stdout={result.stdout} stderr={result.stderr}")

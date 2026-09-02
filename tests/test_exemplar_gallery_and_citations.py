@@ -18,6 +18,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -29,6 +30,23 @@ GALLERY_SCRIPT = REPO_ROOT / "auditor" / "scripts" / "build-exemplar-gallery.py"
 CITATIONS_SCRIPT = REPO_ROOT / "auditor" / "scripts" / "propose-rule-citations.py"
 EXEMPLAR_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "auditor-exemplar.yml"
 CITE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "auditor-cite-exemplars.yml"
+
+def _child_python() -> str:
+    """PITFALL-PROC-007 local patch: AppImage agent sessions can hijack
+    sys.executable to point at the GUI host wrapper; spawning children from
+    it re-execs the host and dies with a Chromium sandbox FATAL (rc=-5).
+    Prefer the interpreter running these tests (dependency parity) and only
+    fall back to PATH / system candidates when sys.executable is not a real
+    python binary."""
+
+    candidates = [sys.executable, shutil.which("python3"), "/usr/bin/python3"]
+    for cand in candidates:
+        if cand and Path(cand).is_file():
+            name = Path(cand).name.lower()
+            if name.startswith("python") and not name.endswith(".appimage"):
+                return cand
+    return sys.executable
+
 
 
 def _load_module(name: str, path: Path):
@@ -47,7 +65,7 @@ def _load_module(name: str, path: Path):
 class GalleryScriptSelfTest(unittest.TestCase):
     def test_self_test_passes(self):
         result = subprocess.run(
-            [sys.executable, str(GALLERY_SCRIPT), "--self-test"],
+            [_child_python(), str(GALLERY_SCRIPT), "--self-test"],
             capture_output=True, text=True, check=False,
         )
         self.assertEqual(result.returncode, 0, msg=f"stdout={result.stdout} stderr={result.stderr}")
@@ -138,7 +156,7 @@ exemplifies:
 class CitationsSelfTest(unittest.TestCase):
     def test_self_test_passes(self):
         result = subprocess.run(
-            [sys.executable, str(CITATIONS_SCRIPT), "--self-test"],
+            [_child_python(), str(CITATIONS_SCRIPT), "--self-test"],
             capture_output=True, text=True, check=False,
         )
         self.assertEqual(result.returncode, 0, msg=f"stdout={result.stdout} stderr={result.stderr}")
@@ -208,7 +226,7 @@ exemplifies:
 ---
 """)
             result = subprocess.run(
-                [sys.executable, str(CITATIONS_SCRIPT),
+                [_child_python(), str(CITATIONS_SCRIPT),
                  "--rules-path", str(rules),
                  "--exemplars-dir", str(ex_dir),
                  "--check"],

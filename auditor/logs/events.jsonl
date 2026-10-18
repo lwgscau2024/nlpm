@@ -5029,3 +5029,4 @@
 {"timestamp":"2026-10-18T00:49:08Z","workflow":"track","event":"status_check","run_id":"39083530912","run_number":1095,"data":{"contributed":51,"tracked":44,"case_study_ready":45,"rule_adopted":1}}
 {"timestamp":"2026-10-18T04:25:34Z","workflow":"track","event":"status_check","run_id":"39096400915","run_number":1096,"data":{"contributed":51,"tracked":44,"case_study_ready":45,"rule_adopted":1}}
 {"timestamp":"2026-10-18T08:26:59Z","workflow":"track","event":"status_check","run_id":"39110781527","run_number":1097,"data":{"contributed":51,"tracked":44,"case_study_ready":45,"rule_adopted":1}}
+{"timestamp":"2026-10-18T09:15:26Z","workflow":"refine-rules","event":"proposals_prepared","run_id":"39114608260","run_number":29,"data":{"proposals":0,"skipped_existing_open":1}}

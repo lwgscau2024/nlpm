@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "last_discovery": "2026-10-12T06:15:04Z",
+    "last_discovery": "2026-10-19T06:11:03Z",
     "total_audited": 12,
     "total_contributed": 6,
-    "total_discovered": 290
+    "total_discovered": 294
   },
   "repos": {
     "0xNyk/council-of-high-intelligence": {
@@ -10237,6 +10237,46 @@
       "status": "discovered",
       "score": null,
       "audit_issue": 1453,
+      "prs": []
+    },
+    "Leonxlnx/taste-skill": {
+      "discovered": "2026-10-19T06:11:03Z",
+      "stars": 98968,
+      "artifacts": 13,
+      "description": "Agent skills that give coding agents taste: art direction, reference images and a browser check instead of generic AI pages",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1512,
+      "prs": []
+    },
+    "rehan-remade/universal-modder": {
+      "discovered": "2026-10-19T06:11:03Z",
+      "stars": 8371,
+      "artifacts": 64,
+      "description": "Point Claude at any game. Skills, tools and the fal MCP that let Claude Code mod almost any PC game you own: recon, reverse engineering, fal-generated art/3D/audio, in-game testing, showcase videos.",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1513,
+      "prs": []
+    },
+    "tt-a1i/archify": {
+      "discovered": "2026-10-19T06:11:03Z",
+      "stars": 85507,
+      "artifacts": 18,
+      "description": "Turn any idea, plan, or codebase into a beautiful interactive diagram. An agent skill for Claude Code, Codex, and more.",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1514,
+      "prs": []
+    },
+    "wataru-maeda/react-native-boilerplate": {
+      "discovered": "2026-10-19T06:11:03Z",
+      "stars": 520,
+      "artifacts": 16,
+      "description": "Production-ready React Native boilerplate for iOS, Android, and Web with Expo SDK 58, React 19.3, Expo Router, Redux Toolkit, TypeScript, Maestro E2E tests, and AGENTS.md rules and skills for AI coding agents (Claude Code, Codex, Cursor).",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1515,
       "prs": []
     }
   }

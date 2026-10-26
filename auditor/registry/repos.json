@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "last_discovery": "2026-10-19T06:11:03Z",
+    "last_discovery": "2026-10-26T06:11:08Z",
     "total_audited": 12,
     "total_contributed": 6,
-    "total_discovered": 294
+    "total_discovered": 297
   },
   "repos": {
     "0xNyk/council-of-high-intelligence": {
@@ -10211,6 +10211,36 @@
       "status": "discovered",
       "score": null,
       "audit_issue": 1515,
+      "prs": []
+    },
+    "breakstageaxe61/genspark-claw": {
+      "discovered": "2026-10-26T06:11:08Z",
+      "stars": 538,
+      "artifacts": 5,
+      "description": "🦀⚡ Community skill pack & CLI for Genspark Claw, OpenClaw & Hermes agents — 5 production-ready SKILL.md skills (deep research, reports, slides, browser automation, AI call prep), zero-dependency Node.js installer, MCP server, one-line install",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1576,
+      "prs": []
+    },
+    "genspark-ai/genoffice": {
+      "discovered": "2026-10-26T06:11:08Z",
+      "stars": 10860,
+      "artifacts": 43,
+      "description": "Free, open-source AI Office suite: Docs, Sheets, Slides, PDF, Markdown and HTML editors with a built-in AI agent, plus a `genoffice` CLI and agent skill so Claude Code, Codex and Cursor can create and edit real .docx/.xlsx/.pptx files locally. Bring your own key. macOS, Windows & Linux.",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1577,
+      "prs": []
+    },
+    "michaelshimeles/rstack": {
+      "discovered": "2026-10-26T06:11:08Z",
+      "stars": 1384,
+      "artifacts": 8,
+      "description": "Agent skills and an AGENTS.md workflow template — isolate in worktrees, build to a service layer, prove with evidence, ship with before/after proof and Greptile review loops. For Claude Code, Cursor, and Codex.",
+      "status": "discovered",
+      "score": null,
+      "audit_issue": 1578,
       "prs": []
     }
   }

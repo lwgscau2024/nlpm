@@ -6108,10 +6108,10 @@
     "last_updated": "2026-04-10",
     "total_events": 16,
     "total_audits": 10,
-    "total_prs_submitted": 328,
-    "total_prs_merged": 128,
+    "total_prs_submitted": 323,
+    "total_prs_merged": 126,
     "total_prs_rejected": 77,
     "total_prs_applied_separately": 33,
-    "updated_at": "2026-10-25T22:04:44.853666Z"
+    "updated_at": "2026-10-26T22:06:06.096436Z"
   }
 }

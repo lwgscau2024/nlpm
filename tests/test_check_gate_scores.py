@@ -10,6 +10,7 @@ must be scored exactly once, and anything malformed fails closed.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,24 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CHECKER = REPO_ROOT / "auditor" / "scripts" / "check-gate-scores.py"
+
+
+def _child_python() -> str:
+    """PITFALL-PROC-007 local patch: AppImage agent sessions can hijack
+    sys.executable to point at the GUI host wrapper; spawning children from
+    it re-execs the host (rc=-5, or a silent single-instance handoff whose
+    startup logs flood stdout while the real child output is lost). Prefer
+    the interpreter running these tests (dependency parity) and only fall
+    back to PATH / system candidates when sys.executable is not a real
+    python binary."""
+
+    candidates = [sys.executable, shutil.which("python3"), "/usr/bin/python3"]
+    for cand in candidates:
+        if cand and Path(cand).is_file():
+            name = Path(cand).name.lower()
+            if name.startswith("python") and not name.endswith(".appimage"):
+                return cand
+    return sys.executable
 
 BODY_A = "---\nname: a\n---\n\nRead the config file before changing any lane.\n"
 BODY_B = "---\nname: b\n---\n\nStop at the first gate failure and report the evidence.\n"
@@ -40,7 +59,7 @@ class GateScores(unittest.TestCase):
     def run_checker(self, rows, header="file\tscore\tquote"):
         self.scores.write_text("\n".join([header, *rows]) + "\n")
         return subprocess.run(
-            [sys.executable, str(CHECKER), "--root", str(self.root), "--list", str(self.list),
+            [_child_python(), str(CHECKER), "--root", str(self.root), "--list", str(self.list),
              "--scores", str(self.scores), "--min", "95"],
             capture_output=True, text=True,
         )
@@ -116,7 +135,7 @@ class GateScores(unittest.TestCase):
 
     def test_missing_scores_file_fails(self):
         r = subprocess.run(
-            [sys.executable, str(CHECKER), "--root", str(self.root), "--list", str(self.list),
+            [_child_python(), str(CHECKER), "--root", str(self.root), "--list", str(self.list),
              "--scores", str(self.root / "absent.tsv"), "--min", "95"],
             capture_output=True, text=True,
         )
